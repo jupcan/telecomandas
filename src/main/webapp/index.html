@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html>
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+<link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.teal-pink.min.css" />
+<script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+<head>
+<meta charset="UTF-8">
+<title>telecomandas</title>
+</head>
+<body>
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+  <header class="mdl-layout__header">
+    <div class="mdl-layout__header-row">
+      <!-- Title -->
+      <span class="mdl-layout-title">Telecomandas</span>
+      <!-- Add spacer, to align navigation to the right -->
+      <div class="mdl-layout-spacer"></div>
+      <!-- Navigation. We hide it in small screens. -->
+      <nav class="mdl-navigation mdl-layout--large-screen-only">
+        <a class="mdl-navigation__link" href="">Inicio</a>
+        <a class="mdl-navigation__link" href="">Acerca de</a>
+      </nav>
+    </div>
+  </header>
+  <div class="mdl-layout__drawer">
+    <span class="mdl-layout-title">Menú</span>
+    <nav class="mdl-navigation">
+      <a class="mdl-navigation__link" href="">Inicio</a>
+      <a class="mdl-navigation__link" href="">Acerca de</a>
+    </nav>
+  </div>
+    <div class="page-content">
+    <!-- contenido de la página -->
+    <br><br><br>
+	<div id="divMesas" align="center"></div>
+	<br><div id="reloj" align="center"><a id="time"></a></div>
+	<div id="divMesaActual" align="center">
+		<label id="lblMesaActual"></label><br>
+		<!-- <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id="btnConfirmar" onclick="confirmarComanda()">Confirmar</button> -->
+		<table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp" id="tableComandaTemporal" align="center" style="width:600px;"></table>
+		<div id="divComanda"></div>
+	</div>
+	<br><table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp" id="tableBotones" align="center" style="width:600px;"></table>
+	<br><br><br>
+	<div id="divErrores"></div>
+    </div>
+  </main>
+</div>
+</body>
+<script>
+	var mesaActual=null;
+	iniciar();
+	
+	function confirmarComanda() {
+		var request=new XMLHttpRequest();
+		request.open("post", "recibirComanda.jsp");
+		request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+		request.onreadystatechange = function() {
+			if (request.readyState==4 && request.status==200) {
+				console.log(request.responseText); //ver que se ha enviado todo al server correctamente
+				var respuesta=JSON.parse(request.responseText);
+				if(respuesta.resultado=="OK"){
+					//vaciar comanda actual
+					mesaActual.platos=[];
+					showMesaActual();
+				} else {
+					alert(respuesta.mensaje);
+				}
+			}
+		};
+		var p=JSON.stringify(mesaActual);
+		request.send("p=" + p);
+	}
+	
+	function iniciar() {
+		tableBotones.innerHTML="";
+		getMesas();
+		getCategorias();
+	}
+	
+	function getMesas() {
+		divMesas.innerHTML="";
+		var request=new XMLHttpRequest();
+		request.open("get", "getMesas.jsp");
+		request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+		request.onreadystatechange = function() {
+			if (request.readyState==4 && request.status==200) {
+				var respuesta=JSON.parse(request.responseText);
+				var tabla=document.createElement("table"); divMesas.appendChild(tabla);
+				tabla.setAttribute("class", "mdl-data-table mdl-js-data-table mdl-shadow--2dp");
+				var tr=document.createElement("tr"); tabla.appendChild(tr);
+				
+				for (var i=0; i<respuesta.length; i++) {
+					var mesa=respuesta[i];
+					var td=document.createElement("td"); tr.appendChild(td);
+					var label=document.createElement("label"); td.appendChild(label); td.appendChild(document.createElement("br"));
+					label.innerHTML="Mesa " + mesa._id;
+					label.setAttribute("class", "mdl-navigation__link");
+					label.setAttribute("style", "text-align: center; display: block;");
+					
+					var btnCambiarEstado=document.createElement("button"); td.appendChild(btnCambiarEstado); td.appendChild(document.createElement("br"));
+					btnCambiarEstado.setAttribute("class", "mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored");
+					btnCambiarEstado.setAttribute("style", "margin: 0 auto; display: block;");
+					if (mesa.estado=="Libre") 
+						btnCambiarEstado.innerHTML="Abrir";
+					else {
+						btnCambiarEstado.innerHTML="Cerrar";
+						var btnSeleccionarMesa=document.createElement("button"); td.appendChild(btnSeleccionarMesa); td.appendChild(document.createElement("br"));
+						btnSeleccionarMesa.innerHTML="Seleccionar";
+						btnSeleccionarMesa.setAttribute("onclick", "seleccionar(" + mesa._id + ")");
+						btnSeleccionarMesa.setAttribute("class", "mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--accent");
+						
+					}
+					btnCambiarEstado.setAttribute("onclick", "cambiarEstado(" + mesa._id + ", '" + mesa.estado + "')");
+				}
+				showMesaActual();
+			}
+		};	
+		request.send();
+	}
+	
+	function getCategorias() {
+		divMesas.innerHTML="";
+		var request=new XMLHttpRequest();
+		request.open("get", "getCategorias.jsp");
+		request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+		request.onreadystatechange = function() {
+			if (request.readyState==4 && request.status==200) {
+				var respuesta=JSON.parse(request.responseText);
+				var tr=document.createElement("tr"); tableBotones.appendChild(tr);
+				
+				for (var i=0; i<respuesta.length; i++) {
+					var categoria=respuesta[i];
+					var td=document.createElement("td"); tr.appendChild(td);
+					var btn=document.createElement("button"); td.appendChild(btn); td.appendChild(document.createElement("br"));
+					btn.innerHTML=categoria.nombre;
+					btn.setAttribute("onclick", "getPlatosDeCategoria('" + categoria._id + "')");
+					btn.setAttribute("class", "mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent");
+				}
+			}
+		};	
+		request.send();
+	}
+	
+	function getPlatosDeCategoria(idCategoria) {
+		var request=new XMLHttpRequest();
+		request.open("post", "getPlatosDeCategoria.jsp");
+		request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+		request.onreadystatechange = function() {
+			if (request.readyState==4 && request.status==200) {
+				var respuesta=JSON.parse(request.responseText);
+				var platos=respuesta;
+				tableBotones.innerHTML="";
+				var thead=document.createElement("thead"); tableBotones.appendChild(thead);
+				var tbody=document.createElement("tbody"); tableBotones.appendChild(tbody);
+				thead.innerHTML='<tr><th class="mdl-data-table__cell--non-numeric">Plato</th><th>Precio</th></tr>';
+				for (var i=0; i<platos.length; i++) {
+					var tr=document.createElement("tr"); tbody.appendChild(tr);
+					var plato=document.createElement("td"); tr.appendChild(plato);
+					plato.setAttribute("style", "text-align: left;");
+					var precio=document.createElement("td"); tr.appendChild(precio);
+					plato.innerHTML=platos[i].nombre;
+					precio.innerHTML=platos[i].precio;
+					//btn.setAttribute("onclick", "elegirPlato('" + platos[i]._id + "')");
+					tr.setAttribute("onclick", "elegirPlato('" + idCategoria + "', '" + platos[i]._id + "', '" + platos[i].nombre + "')");
+					tr.setAttribute("class", "mdl-data-table__cell--non-numeric");
+					tr.setAttribute("style", "cursor: pointer;");
+				}
+				var btn=document.createElement("button"); tableBotones.appendChild(btn);
+				btn.setAttribute("onclick", "iniciar()");
+				btn.setAttribute("class", "mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--accent");
+				btn.innerHTML="Atrás";
+				mostrarComanda(respuesta);
+			}
+		};	
+		var p = {
+			idCategoria : idCategoria
+		};
+		request.send("p=" + JSON.stringify(p));
+	}
+	
+	function elegirPlato(idCategoria, idPlato, nombre) {
+		if (mesaActual==null) {
+			alert("Elige una mesa.");
+			return;
+		}
+		mesaActual.addPlato(idCategoria, idPlato, nombre); //añado el plato a la mesa
+		showMesaActual();
+	}
+	
+	function mostrarComanda(respuesta) {
+		if (respuesta.comanda!=undefined) {
+			var comanda=respuesta.comanda;
+			var horaApertura = comanda.horaApertura;
+			var platos=comanda.platos;
+			divComanda.innerHTML="";
+			for (var i=0; i<platos.length; i++) {
+				var plato=platos[i];
+				var span=document.createElement("span");
+				span.innerHTML=plato.unidades + " ... " + plato.nombre + " ... " + plato.precio + "€";
+				divComanda.appendChild(span); divComanda.appendChild(document.createElement("br"));
+			}
+		} else {
+			divComanda.innerHTML="La comanda está vacía"; 
+			divComanda.setAttribute("class", "mdl-navigation__link");
+		}
+	}
+	
+	function seleccionar(idMesa) {
+		var request=new XMLHttpRequest();
+		request.open("post", "getEstadoMesa.jsp", false);
+		request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+		request.onreadystatechange = function() {
+			if (request.readyState==4 && request.status==200) {
+				var respuesta=JSON.parse(request.responseText);
+				mesaActual=new Mesa(idMesa);
+				showMesaActual();
+				if (respuesta.comanda!=undefined) {
+					var comanda=respuesta.comanda;
+					var horaApertura = comanda.horaApertura;
+					var platos=comanda.platos;
+					divComanda.innerHTML="";
+					for (var i=0; i<platos.length; i++) {
+						var plato=platos[i];
+						var span=document.createElement("span");
+						span.innerHTML=plato.unidades + " ... " + plato.nombre + " ... " + plato.precio + "€";
+						divComanda.appendChild(span); divComanda.appendChild(document.createElement("br"));
+					}
+				} else {
+					divComanda.innerHTML="La comanda está vacía";
+					divComanda.setAttribute("class", "mdl-navigation__link");
+				}
+			}
+		};	
+		var p = {
+			_id : idMesa
+		};
+		request.send("p=" + JSON.stringify(p));
+	}
+	
+	function showMesaActual() {
+		lblMesaActual.innerHTML="Mesa seleccionada: ninguna";
+		lblMesaActual.setAttribute("class", "mdl-navigation__link");
+		if (mesaActual!=null) {
+			lblMesaActual.innerHTML="Mesa seleccionada: " + mesaActual.id;
+			lblMesaActual.setAttribute("class", "mdl-navigation__link");
+			tableComandaTemporal.innerHTML="";
+			var btn=document.createElement("button"); 
+			btn.setAttribute("onclick", "confirmarComanda()");
+			btn.setAttribute("class", "mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--accent");
+			btn.innerHTML="Confirmar";
+			var thead=document.createElement("thead"); tableComandaTemporal.appendChild(thead);
+			var tbody=document.createElement("tbody"); tableComandaTemporal.appendChild(tbody);
+			var aux=false;
+			for (var i=0; i<mesaActual.platos.length; i++) {
+				if(!aux){
+					tableComandaTemporal.appendChild(btn); aux=true;
+				}	
+				var tr=document.createElement("tr"); tbody.appendChild(tr);
+				var plato=document.createElement("td"); tr.appendChild(plato);
+				plato.setAttribute("style", "text-align: left;");
+				var unidades=document.createElement("td"); tr.appendChild(unidades);
+				if(mesaActual.platos[i].unidades==1) {
+					plato.innerHTML=mesaActual.platos[i].nombre;
+				} else {
+					plato.innerHTML='<span class="mdl-badge" data-badge="' + mesaActual.platos[i].unidades + '">' + mesaActual.platos[i].nombre + '</span>'
+				}
+				unidades.innerHTML='<div class="material-icons">delete</div>'
+				//borrar plato de comanda actual
+				//unidades.setAttribute("onclick", mesaActual.platos[i].unidades--);
+				unidades.setAttribute("style", "cursor: pointer;");
+			}
+		}
+	}
+	
+	function cambiarEstado(idMesa, estado) {
+		var request=new XMLHttpRequest();
+		if (estado=="Libre")
+			request.open("post", "abrirMesa.jsp");
+		else
+			request.open("post", "cerrarMesa.jsp");
+		request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+		request.onreadystatechange = function() {
+			if (request.readyState==4 && request.status==200) {
+				var respuesta=JSON.parse(request.responseText);
+				if (respuesta.resultado=="OK") {
+					getMesas();
+					if (estado=="Libre")
+						mesaActual=new Mesa(idMesa);
+					else
+						mesaActual=null;
+					showMesaActual();
+				} else
+					divErrores.innerHTML=respuesta.mensaje;
+			}
+		};	
+		var p = {
+			_id : idMesa
+		};
+		request.send("p=" + JSON.stringify(p));
+	}
+	
+	function Mesa(id) {
+		this.id=id;
+		this.platos=[];
+	}
+	
+	Mesa.prototype.addPlato = function(idCategoria, idPlato, nombre) {
+		var plato=null;
+		for (var i=0; i<this.platos.length; i++) {
+			var auxi=this.platos[i];
+			if (auxi.idCategoria==idCategoria && auxi.idPlato==idPlato) {
+				plato=auxi;
+				break;
+			}
+		}
+		if (plato==null) {
+			plato=new Plato(idCategoria, idPlato, nombre);
+			this.platos.push(plato) //añado elemento al array
+		}
+		plato.unidades=plato.unidades+1;
+	}
+	
+	function Plato(idCategoria, idPlato, nombre) {
+		this.idCategoria=idCategoria;
+		this.idPlato=idPlato;
+		this.unidades=0;
+		this.nombre=nombre;
+	}
+	
+	//reloj
+	function checkTime(i) {
+		  if (i < 10) {
+		    i = "0" + i;
+		  }
+		  return i;
+		}
+
+	function startTime() {
+		  var today = new Date();
+		  var h = today.getHours();
+		  var m = today.getMinutes();
+		  var s = today.getSeconds();
+		  // add a zero in front of numbers<10
+		  m = checkTime(m);
+		  s = checkTime(s);
+		  document.getElementById('time').innerHTML = h + ":" + m + ":" + s;
+		  t = setTimeout(function() {
+		    startTime()
+		  }, 500);
+	}
+	startTime();
+</script>
+</html>
