@@ -2,6 +2,7 @@
 <%@ page import="org.json.*, edu.uclm.esi.disoft.comandas.dominio.Manager" %>
 
 <%
+	response.addHeader("Access-Control-Allow-Origin", "*");
 	JSONArray categorias=Manager.get().getCategorias();
 %>
 
