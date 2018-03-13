@@ -1,12 +1,15 @@
 package edu.uclm.esi.disoft.comandas.dominio;
 
+import edu.uclm.esi.disoft.comandas.etiquetas.JSONable;
 import java.util.Vector;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class Comanda {
+	@JSONable
 	private long horaApertura, horaCierre;
+	@JSONable
 	private Vector<PlatoPedido> platos;
 	
 	public Comanda() {

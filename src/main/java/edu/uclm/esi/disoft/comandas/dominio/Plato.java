@@ -1,10 +1,14 @@
 package edu.uclm.esi.disoft.comandas.dominio;
 
 import org.json.JSONObject;
+import edu.uclm.esi.disoft.comandas.etiquetas.JSONable;
 
 public class Plato {
+	@JSONable
 	private String _id;
+	@JSONable
 	private String nombre;
+	@JSONable
 	private double precio;
 
 	public Plato(String _id, String nombre, double precio) {

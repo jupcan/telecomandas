@@ -1,9 +1,12 @@
 package edu.uclm.esi.disoft.comandas.dominio;
 
 import org.json.JSONObject;
+import edu.uclm.esi.disoft.comandas.etiquetas.JSONable;
 
 public class PlatoPedido {
+	@JSONable
 	private Plato plato;
+	@JSONable
 	private int unidades;
 	
 	public PlatoPedido(Plato plato, int unidades) {

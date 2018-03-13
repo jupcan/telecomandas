@@ -1,8 +1,10 @@
 package edu.uclm.esi.disoft.comandas.dominio;
 
 import org.json.JSONObject;
+import edu.uclm.esi.disoft.comandas.etiquetas.JSONable;
 
 public class Mesa {
+	@JSONable
 	private int _id;
 	private Comanda comandaActual;
 

@@ -2,7 +2,7 @@
 <%@ page import="org.json.*, edu.uclm.esi.disoft.comandas.dominio.Manager" %>
 
 <%
-	response.addHeader("Access-Control-Allow-Origin", "*");
+	response.addHeader("Access-Control-Allow-Origin", "*"); //recibir info de otros sitios
 	String p=request.getParameter("p");
 	JSONObject jso=new JSONObject(p);
 	int idMesa=jso.getInt("_id");
