@@ -10,6 +10,9 @@ public class Plato {
 	private String nombre;
 	@JSONable
 	private double precio;
+	
+	public Plato() {
+	}
 
 	public Plato(String _id, String nombre, double precio) {
 		this._id=_id;

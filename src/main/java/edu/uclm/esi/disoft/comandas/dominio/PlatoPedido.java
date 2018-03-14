@@ -9,6 +9,9 @@ public class PlatoPedido {
 	@JSONable
 	private int unidades;
 	
+	public PlatoPedido() {
+	}
+	
 	public PlatoPedido(Plato plato, int unidades) {
 		this.plato=plato;
 		this.unidades=unidades;

@@ -30,7 +30,7 @@ public class JSONeador {
 						jsa.put(toJSONObject(objetito));
 					}
 					jso.put(nombre, jsa);
-				} else if (isJSONeable(object)) {
+				} else if (isJSONeable(valor)) {
 					jso.put(nombre, toJSONObject(valor));
 				} else {
 					jso.put(nombre, valor);

@@ -14,6 +14,9 @@ public class Categoria {
 	private JSONArray jsaPlatos;
 	private ConcurrentHashMap<String, Plato> platos;
 	
+	public Categoria() {
+	}
+	
 	public Categoria(String _id, String nombre) {
 		this._id=_id;
 		this.nombre=nombre;
