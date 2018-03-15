@@ -1,8 +1,11 @@
 package edu.uclm.esi.disoft.comandas.dominio;
 
 import org.json.JSONObject;
+
+import edu.uclm.esi.disoft.comandas.etiquetas.BSONable;
 import edu.uclm.esi.disoft.comandas.etiquetas.JSONable;
 
+@BSONable
 public class Plato {
 	@JSONable
 	private String _id;

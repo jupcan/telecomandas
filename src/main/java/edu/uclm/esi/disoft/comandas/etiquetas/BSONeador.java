@@ -18,6 +18,7 @@ import com.mongodb.client.MongoCursor;
 
 import edu.uclm.esi.disoft.comandas.dao.MongoBroker;
 import edu.uclm.esi.disoft.comandas.dominio.Plato;
+import edu.uclm.esi.disoft.comandas.dominio.PlatoPedido;
 
 public class BSONeador {
 	
@@ -43,7 +44,7 @@ public class BSONeador {
 		collection.insertOne(bso);
 	}
 	
-	private static BsonValue getBsonValue(Object valorDelCampo) {
+	private static BsonValue getBsonValue(Object valorDelCampo) throws Exception {
 		Class<? extends Object> tipo = valorDelCampo.getClass();
 		if(tipo==int.class || tipo==Integer.class)
 			return new BsonInt32((int)valorDelCampo);
@@ -54,7 +55,13 @@ public class BSONeador {
 		if(tipo==String.class)
 			return new BsonString(valorDelCampo.toString());
 		if(tipo.isAnnotationPresent(BSONable.class)) {
-			BsonValue bso=getBsonValue(valorDelCampo);
+			Field[] campos=valorDelCampo.getClass().getDeclaredFields();
+			BsonDocument bso=new BsonDocument();
+			for(int i=0; i<campos.length; i++) {
+				Field campo=campos[i];
+				campo.setAccessible(true);
+				bso.put(campo.getName(), getBsonValue(campo.get(valorDelCampo)));
+			}
 			return bso;
 		}
 		return null;
@@ -107,13 +114,14 @@ public class BSONeador {
 	}
 	
 	public static void main(String[] args) {
-		/*Plato plato=new Plato("27", "Tortilla", 6.50);
+		Plato plato=new Plato("27", "Tortilla", 6.50);
+		PlatoPedido platoPedido=new PlatoPedido(plato, 2);
 		try {
-			BSONeador.insert(plato);
+			BSONeador.insert(platoPedido);
 		} catch (Exception e) {
 			e.printStackTrace();
-		}*/
-		try {
+		}
+		/*try {
 			Enumeration<Object> platos = BSONeador.load(Plato.class).elements();
 			while(platos.hasMoreElements()) {
 				Plato plato=(Plato) platos.nextElement();
@@ -121,6 +129,6 @@ public class BSONeador {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+		}*/
 	}
 }
