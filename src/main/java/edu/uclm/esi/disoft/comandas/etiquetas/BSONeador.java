@@ -1,9 +1,7 @@
 package edu.uclm.esi.disoft.comandas.etiquetas;
 
 import java.lang.reflect.Field;
-import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.bson.BsonDocument;
@@ -38,7 +36,17 @@ public class BSONeador {
 			Object valor=campo.get(objeto);
 			if(valor==null)
 				continue;
-			bso.append(campo.getName(), getBsonValue(valor));
+			BSONable anotacion = campo.getAnnotation(BSONable.class);
+			if(anotacion==null)
+				bso.append(campo.getName(), getBsonValue(valor));
+			else {
+				String nombreCampoAsociado=anotacion.campo(); // "_id"
+				String nombreNuevo=anotacion.nombre(); // "idPlato"
+				Field campoAsociado=valor.getClass().getDeclaredField(nombreCampoAsociado);
+				campoAsociado.setAccessible(true);
+				Object valorCampoAsociado=campoAsociado.get(valor);
+				bso.append(nombreNuevo, getBsonValue(valorCampoAsociado));
+			}
 		}
 		MongoCollection<BsonDocument> collection=MongoBroker.get().getCollection(clase.getName());
 		collection.insertOne(bso);
@@ -114,10 +122,15 @@ public class BSONeador {
 	}
 	
 	public static void main(String[] args) {
-		Plato plato=new Plato("27", "Tortilla", 6.50);
+		Plato plato=new Plato("28", "Tortilla de Gambas", 6.50);
 		PlatoPedido platoPedido=new PlatoPedido(plato, 2);
 		try {
+			BSONeador.insert(plato);
 			BSONeador.insert(platoPedido);
+			
+			BSONeador.update(plato, "_id", "30");
+			//comprobar que se ha cambiado en platopedido
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

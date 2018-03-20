@@ -6,7 +6,8 @@ import edu.uclm.esi.disoft.comandas.etiquetas.BSONable;
 import edu.uclm.esi.disoft.comandas.etiquetas.JSONable;
 
 public class PlatoPedido {
-	@JSONable
+	@JSONable(campo = "_id", nombre = "idPlato")
+	@BSONable(campo = "_id", nombre = "idPlato", OnUpdateCascade=true) // crear borrado en cascada, ej examen
 	private Plato plato;
 	@JSONable
 	private int unidades;

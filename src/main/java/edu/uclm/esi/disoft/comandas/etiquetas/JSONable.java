@@ -8,5 +8,6 @@ import java.lang.annotation.RetentionPolicy;
 @Target(FIELD)
 
 public @interface JSONable {
-	
+	String campo() default "";
+	String nombre() default "";
 }

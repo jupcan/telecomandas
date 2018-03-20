@@ -31,8 +31,19 @@ public class JSONeador {
 					}
 					jso.put(nombre, jsa);
 				} else if (isJSONeable(valor)) {
-					jso.put(nombre, toJSONObject(valor));
+					JSONable anotacion = campo.getAnnotation(JSONable.class);
+					if(anotacion.nombre().length()==0 && anotacion.campo().length()==0)
+						jso.put(nombre, toJSONObject(valor));
+					else {
+						String nombreCampoAsociado=anotacion.campo(); // "_id"
+						String nombreNuevo=anotacion.nombre(); // "idPlato"
+						Field campoAsociado=valor.getClass().getDeclaredField(nombreCampoAsociado);
+						campoAsociado.setAccessible(true);
+						Object valorCampoAsociado=campoAsociado.get(valor);
+						jso.put(nombreNuevo, valorCampoAsociado);
+					}
 				} else {
+					campo.setAccessible(true);
 					jso.put(nombre, valor);
 				}
 			} catch (Exception e) {

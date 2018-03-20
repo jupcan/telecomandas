@@ -14,35 +14,16 @@ public class TestJSONeador {
 
 	@Test
 	public void test() {
-		Plato plato=new Plato("1", "Gazpacho", 5);
-		String a=plato.toJSONObject().toString();
-		String b=JSONeador.toJSONObject(plato).toString();
-		assertEquals(a, b);
+		Plato plato=new Plato("26", "Tortilla", 6.50);
 		
-		/*PlatoPedido platoPedido=new PlatoPedido(plato, 4);
-		a=platoPedido.toJSONObject().toString();
-		b=JSONeador.toJSONObject(platoPedido).toString();
-		assertEquals(a, b);
+		PlatoPedido platoPedido=new PlatoPedido(plato, 3);
+		JSONObject jso = JSONeador.toJSONObject(platoPedido);
+		System.out.println(jso.toString());
 		
-		Comanda comanda=new Comanda();
-		comanda.add(plato, 2);
-		Plato tortilla=new Plato("2", "Tortilla", 6.5);
-		comanda.add(tortilla, 1);
-		a=comanda.toJSONObject().toString();
-		b=JSONeador.toJSONObject(comanda).toString();
-		assertEquals(a, b);*/
-		
-		Mesa mesa=new Mesa(1);
-		try {
-			mesa.abrir();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		mesa.addToComanda(plato, 2);
-		System.out.println(mesa.toJSONObject());
-		JSONObject jsoMesa=JSONeador.toJSONObject(mesa);
-		jsoMesa.put("estado", mesa.estaLibre() ? "Libre" : "Ocupada");
-		System.out.println(jsoMesa);
+		String valorEsperado = 
+				"{\"unidades\":3,\"idPlato\":\"26\"}";
+		System.out.println(valorEsperado);
+		assertEquals(jso.toString(), valorEsperado);
 	}
 
 }
