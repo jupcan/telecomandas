@@ -11,5 +11,6 @@ import java.lang.annotation.RetentionPolicy;
 public @interface BSONable {
 	String campo() default "";
 	String nombre() default "";
-	boolean OnUpdateCascade() default false;
+	boolean OnDeleteCascade() default false;
+	String claseDependiente() default "";
 }

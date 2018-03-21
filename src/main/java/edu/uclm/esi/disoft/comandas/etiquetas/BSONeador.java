@@ -2,6 +2,7 @@ package edu.uclm.esi.disoft.comandas.etiquetas;
 
 import java.lang.reflect.Field;
 import java.util.Iterator;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.bson.BsonDocument;
@@ -121,14 +122,78 @@ public class BSONeador {
 		}
 	}
 	
+	private static void update(Object objeto, Object... nombresValores) throws Exception { //Object[] pasamos varios arrays separados por comas
+		if(nombresValores.length==0 || nombresValores.length % 2!=0)
+			throw new IllegalArgumentException("Esperaba un número par de parámetros.");
+		
+		BsonDocument nuevosValores=new BsonDocument();
+		for(int i=0; i<nombresValores.length;i++) {
+			nuevosValores.put(nombresValores[i].toString(), getBsonValue(nombresValores[i+1]));
+			i++; //para que me coja el 3 valor y no el i+1 de nuevo
+		}
+		Class<?> clase = objeto.getClass();
+		Field campoId=clase.getDeclaredField("_id");
+		campoId.setAccessible(true);
+		Object valorId=campoId.get(objeto);
+		BsonDocument criterio=new BsonDocument();
+		criterio.put("_id", getBsonValue(valorId));
+		
+		//System.out.println(criterio);
+		//System.out.println(nuevosValores);
+		MongoCollection<BsonDocument> coleccion = MongoBroker.get().getCollection(clase.getName());
+		coleccion.replaceOne(criterio, nuevosValores);
+	}
+	
+	private static void delete(Object objeto ) throws Exception {
+		Class<?> clase = objeto.getClass();
+		Field campoId=clase.getDeclaredField("_id");
+		campoId.setAccessible(true);
+		Object valorId=campoId.get(objeto);
+		BsonDocument criterio=new BsonDocument();
+		criterio.put("_id", getBsonValue(valorId));
+		MongoCollection<BsonDocument> coleccion = MongoBroker.get().getCollection(clase.getName());
+		coleccion.deleteOne(criterio);
+		
+		BSONable anotacion=clase.getAnnotation(BSONable.class);
+		if(anotacion==null)
+			return;
+		String nombreClaseDependiente=anotacion.claseDependiente();
+		Class<?> claseDependiente=Class.forName(nombreClaseDependiente); //coger la clase del string que tenemos en la etiqueta
+		Vector<Field> camposDependientes=findCampos(claseDependiente, clase);
+		if(camposDependientes==null)
+			return;
+		//@BSONable(campo = "_id", nombre = "idPlato", OnDeleteCascade=true) // crear borrado en cascada, ej examen
+		//private Plato plato;
+		for(Field campoDependiente : camposDependientes) {
+			/* 1. coger la anotacion, ver si tiene el ondeletecascade a true.
+			2. Si la tiene, leer valor "nombre" de la anotación (Dará "idPlato")
+			3. Ir a la colección PlatoPedido y hacer delete de todos los objetos
+			4. Cuyo idPlato seal el _id del objeto principal (parámetro objeto)*/
+		}
+	}
+
+	private static Vector<Field> findCampos(Class<?> claseDependiente, Class<?> clase) {
+		Vector<Field> resultado=null;
+		Field[] camposClaseDependiente=claseDependiente.getDeclaredFields();
+		for(int i=0; i<camposClaseDependiente.length; i++) {
+			Field campo=camposClaseDependiente[i];
+			if(campo.getType()==clase && campo.getAnnotation(BSONable.class)!=null) {
+				if(resultado==null)
+					resultado=new Vector<>();
+				resultado.add(campo);
+			}
+		}
+		return null;
+	}
+
 	public static void main(String[] args) {
-		Plato plato=new Plato("28", "Tortilla de Gambas", 6.50);
+		Plato plato=new Plato("128", "Tortilla de Gambas", 6.50);
 		PlatoPedido platoPedido=new PlatoPedido(plato, 2);
 		try {
 			BSONeador.insert(plato);
-			BSONeador.insert(platoPedido);
-			
-			BSONeador.update(plato, "_id", "30");
+			//BSONeador.insert(platoPedido);
+			BSONeador.delete(plato);
+			//BSONeador.update(plato, "nombre", "Tortilla de jamón");
 			//comprobar que se ha cambiado en platopedido
 			
 		} catch (Exception e) {

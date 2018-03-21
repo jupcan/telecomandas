@@ -5,7 +5,7 @@ import org.json.JSONObject;
 import edu.uclm.esi.disoft.comandas.etiquetas.BSONable;
 import edu.uclm.esi.disoft.comandas.etiquetas.JSONable;
 
-@BSONable
+@BSONable(claseDependiente="PlatoPedido") //depende de platopedido para borrar en cascada
 public class Plato {
 	@JSONable
 	private String _id;
