@@ -162,13 +162,15 @@ public class BSONeador {
 		Vector<Field> camposDependientes=findCampos(claseDependiente, clase);
 		if(camposDependientes==null)
 			return;
-		//@BSONable(campo = "_id", nombre = "idPlato", OnDeleteCascade=true) // crear borrado en cascada, ej examen
-		//private Plato plato;
+		/*estos son los valores que he recuperado con el fin:
+		 * @BSONable(campo = "_id", nombre = "idPlato", OnDeleteCascade=true) // crear borrado en cascada, ej examen
+		 * private Plato plato;
+		 */
 		for(Field campoDependiente : camposDependientes) {
-			/* 1. coger la anotacion, ver si tiene el ondeletecascade a true.
-			2. Si la tiene, leer valor "nombre" de la anotación (Dará "idPlato")
-			3. Ir a la colección PlatoPedido y hacer delete de todos los objetos
-			4. Cuyo idPlato seal el _id del objeto principal (parámetro objeto)*/
+			/*	1. coger la anotacion, ver si tiene el ondeletecascade a true.
+			*	2. Si la tiene, leer valor "nombre" de la anotación (Dará "idPlato")
+			*	3. Ir a la colección PlatoPedido y hacer delete de todos los objetos
+			*	4. Cuyo idPlato seal el _id del objeto principal (parámetro objeto)*/
 		}
 	}
 
