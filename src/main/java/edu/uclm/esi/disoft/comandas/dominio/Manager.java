@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import edu.uclm.esi.disoft.comandas.dao.DAOCategoria;
 import edu.uclm.esi.disoft.comandas.dao.DAOMesa;
+import edu.uclm.esi.disoft.comandas.ws.ServidorWS;
 
 public class Manager {
 	private ConcurrentHashMap<Integer, Mesa> mesas;
@@ -48,7 +49,7 @@ public class Manager {
 		mesa.cerrar();
 	}
 	
-	public void addToComanda(int idMesa, JSONArray platos) throws Exception {
+	public void recibirComanda(int idMesa, JSONArray platos) throws Exception {
 		Mesa mesa=mesas.get(idMesa);
 		if (mesa.estaLibre())
 			throw new Exception("La mesa " + idMesa + " está libre. Ábrela primero");
@@ -61,6 +62,7 @@ public class Manager {
 			Plato plato=categoria.find(idPlato);
 			mesa.addToComanda(plato, unidades);
 		}
+		ServidorWS.solicitarPlatos(platos); //ws connection to kitchen client
 	}
 	
 	public JSONArray getMesas() {

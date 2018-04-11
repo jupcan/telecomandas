@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>cliente cocina</title>
+</head>
+<body>
+	<div id="estadoConexion"></div>
+	<div id="platosPendientes"></div>
+	<div id="platosListos"></div>
+</body>
+<script>
+var url = "ws://" + window.location.host;
+if(window.location.port.length>0)
+    url=url + ":" + window.location.port;
+url=url + "/Comandas/ServidorWS";
+var ws = new WebSocket(url);
+
+ws.onopen = function() {
+	estadoConexion.innerHTML="Conectado";
+}
+
+ws.onmessage = function(mensaje) {
+	var mensaje=JSON.parse(mensaje.data);
+    if(mensaje.type=="solicitudDePlatos") {
+    	var platos=mensaje.platos;
+    	//imprimir platos como el enunciado, botones y demás
+    }
+}
+
+ws.onerror = function() {
+    alert("Error");
+}
+</script>
+</html>
