@@ -10,7 +10,7 @@
 	
 	JSONObject respuesta=new JSONObject();
 	try {
-		Manager.get().addToComanda(idMesa, platos);
+		Manager.get().recibirComanda(idMesa, platos);
 		respuesta.put("resultado", "OK");
 	}
 	catch (Exception e) {
