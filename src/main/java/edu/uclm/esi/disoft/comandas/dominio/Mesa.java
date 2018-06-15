@@ -11,8 +11,7 @@ public class Mesa {
 	private int _id;
 	private Comanda comandaActual;
 	
-	public Mesa() {
-	}
+	public Mesa() {}
 
 	public Mesa(int id) {
 		this._id=id;
@@ -42,8 +41,8 @@ public class Mesa {
 		comandaActual=null;
 	}
 
-	public void addToComanda(Plato plato, int unidades) {
-		this.comandaActual.add(plato, unidades);
+	public PlatoPedido addToComanda(Plato plato, int unidades) {
+		return this.comandaActual.add(plato, unidades);
 	}
 
 	public JSONObject estado() {
@@ -55,5 +54,13 @@ public class Mesa {
 			jso.put("comanda", this.comandaActual.toJSONObject());
 		}
 		return jso;
+	}
+
+	public Object getComandaActual() {
+		return comandaActual;
+	}
+
+	public void setPrecioComanda() {
+		comandaActual.calPrecio();
 	}
 }

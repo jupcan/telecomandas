@@ -13,6 +13,7 @@ public class Plato {
 	private String nombre;
 	@JSONable
 	private double precio;
+	private String idCategoria;
 	
 	public Plato() {
 	}
@@ -33,5 +34,14 @@ public class Plato {
 
 	public String getId() {
 		return this._id;
+	}
+	
+	public double getPrecio() {
+		return precio;
+	}
+
+	public void setCategoria(String idCategoria) {
+		this.idCategoria=idCategoria;
+		
 	}
 }

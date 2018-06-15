@@ -1,6 +1,7 @@
 package edu.uclm.esi.disoft.comandas.dominio;
 
 import java.util.Enumeration;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.json.JSONArray;
@@ -8,13 +9,16 @@ import org.json.JSONObject;
 
 import edu.uclm.esi.disoft.comandas.dao.DAOCategoria;
 import edu.uclm.esi.disoft.comandas.dao.DAOMesa;
+import edu.uclm.esi.disoft.comandas.etiquetas.BSONeador;
 import edu.uclm.esi.disoft.comandas.ws.ServidorWS;
 
 public class Manager {
+	//<Object, Object>
 	private ConcurrentHashMap<Integer, Mesa> mesas;
 	private JSONArray jsaCategorias;
 	private ConcurrentHashMap<String, Categoria> categorias;
 	
+	//DAO o BSNeador
 	private Manager() {
 		mesas=DAOMesa.load();
 		cargarCategorias();
@@ -46,10 +50,18 @@ public class Manager {
 	
 	public void cerrarMesa(int id) throws Exception {
 		Mesa mesa=mesas.get(id);
+		String idComanda = mesa.getComandaActual().get_id();
 		mesa.cerrar();
+		if(idComanda != null) {
+			JSONObject jso = new JSONObject();
+			jso.put("type", "cerrar");
+			jso.put("idComanda", idComanda);
+			ServidorWS.enviar(jso);
+		}
 	}
 	
 	public void recibirComanda(int idMesa, JSONArray platos) throws Exception {
+		Vector<PlatoPedido> platosNuevos = new Vector<>();
 		Mesa mesa=mesas.get(idMesa);
 		if (mesa.estaLibre())
 			throw new Exception("La mesa " + idMesa + " está libre. Ábrela primero");
@@ -60,9 +72,20 @@ public class Manager {
 			int unidades=jsoPlato.getInt("unidades");
 			Categoria categoria=this.categorias.get(idCategoria);
 			Plato plato=categoria.find(idPlato);
-			mesa.addToComanda(plato, unidades);
+			//mesa.addToComanda(plato, unidades);
+			platosNuevos.add(mesa.addToComanda(plato, unidades));
 		}
-		ServidorWS.solicitarPlatos(platos); //ws connection to kitchen client
+		mesa.setPrecioComanda();
+		//ServidorWS.solicitarPlatos(platos); //ws connection to kitchen client
+		
+		/*if(mesa.getComandaActual().get_id() == null) {
+			ObjectId id = new ObjectId();
+			mesa.getComandaActual().set_id(id.toHexString());
+			BSONeador.insert(mesa.getComandaActual());
+		}else
+			BSONeador.update(mesa.getComandaActual());
+		
+		enviarCocina(mesa.getComandaActual().get_id(), idMesa, platosNuevos);*/
 	}
 	
 	public JSONArray getMesas() {
@@ -93,5 +116,19 @@ public class Manager {
 				return jso.getJSONArray("platos");
 		}
 		return null;*/
+	}
+	
+	public void platoPreparado(JSONObject jso)throws Exception{
+		int idMesa = jso.getInt("idMesa");
+		String idPlato = jso.getString("id");
+		Mesa mesa=(Mesa)mesas.get(idMesa);
+		Vector<PlatoPedido> platos = mesa.getComandaActual().getPlatos();
+		for(PlatoPedido pp : platos) {
+			if(pp.getPlato().getId().equals(idPlato))
+				pp.setPreparado(true);
+		}
+		mesa.getComandaActual().setPlatos(platos);
+		BSONeador.update(mesa.getComandaActual());
+
 	}
 }

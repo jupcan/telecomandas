@@ -14,13 +14,13 @@ public class Categoria {
 	private JSONArray jsaPlatos;
 	private ConcurrentHashMap<String, Plato> platos;
 	
-	public Categoria() {
-	}
+	public Categoria() {}
 	
 	public Categoria(String _id, String nombre) {
 		this._id=_id;
 		this.nombre=nombre;
 		this.jsaPlatos=new JSONArray();
+		//this.platos=BSONeador.load(Plato.class, "idCategoria", this._id);
 		this.platos=DAOPlato.load(_id);
 		Enumeration<Plato> ePlatos = this.platos.elements();
 		while (ePlatos.hasMoreElements()) {

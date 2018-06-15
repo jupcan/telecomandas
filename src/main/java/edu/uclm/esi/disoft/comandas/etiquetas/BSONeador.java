@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.bson.BsonArray;
+import org.bson.BsonBoolean;
 import org.bson.BsonDocument;
 import org.bson.BsonDouble;
 import org.bson.BsonInt32;
@@ -59,6 +61,8 @@ public class BSONeador {
 			return new BsonInt32((int)valorDelCampo);
 		if(tipo==long.class || tipo==Long.class)
 			return new BsonInt64((long)valorDelCampo);
+		if(tipo==boolean.class || tipo== Boolean.class)
+			return new BsonBoolean((boolean) valorDelCampo);
 		if(tipo==double.class || tipo==Double.class)
 			return new BsonDouble((double)valorDelCampo);
 		if(tipo==String.class)
@@ -73,10 +77,27 @@ public class BSONeador {
 			}
 			return bso;
 		}
+		//¿¿?
+		if(tipo==Vector.class) {
+			Vector vector = (Vector)valorDelCampo;
+			BsonArray bsoa = new BsonArray();
+			for(int i=0;i<vector.size();i++) {
+				BsonDocument bso = new BsonDocument();
+				Object objeto = vector.get(i);
+				Field[] campos = objeto.getClass().getDeclaredFields();
+				for(int j=0;j<campos.length;j++) {
+					Field campo = campos[j];
+					campo.setAccessible(true);
+					bso.put(campo.getName(), getBsonValue(campo.get(objeto)));
+				}
+				bsoa.add(bso);
+			}
+			return bsoa;
+		}
 		return null;
 	}
 
-	public static ConcurrentHashMap<Object, Object> load(Class<?> clase) throws Exception {
+	public static ConcurrentHashMap<Object, Object> load(Class<?> clase) throws InstantiationException, IllegalAccessException, NoSuchFieldException, SecurityException {
 		ConcurrentHashMap<Object, Object> result=new ConcurrentHashMap<>();
 		MongoCollection<BsonDocument> collection=MongoBroker.get().getCollection(clase.getName());
 		MongoCursor<BsonDocument> fi=collection.find().iterator();
@@ -93,6 +114,9 @@ public class BSONeador {
 			return bso.get("_id").asString().getValue();
 		if(bso.get("_id").isInt32())
 			return bso.get("_id").asInt32().getValue();
+		if(bso.get("_id").isObjectId()){
+			return bso.get("_id").asObjectId().getValue().toHexString();
+		}
 		return null;
 	}
 

@@ -3,6 +3,7 @@ package edu.uclm.esi.disoft.comandas.ws;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.websocket.OnMessage;
@@ -13,62 +14,40 @@ import javax.websocket.server.ServerEndpoint;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-@ServerEndpoint(value="/ServidorWS")
+import edu.uclm.esi.disoft.comandas.dominio.Manager;
+
+@ServerEndpoint(value = "/ServidorWS")
 public class ServidorWS {
-	private static ConcurrentHashMap<String, Session> sessions=new ConcurrentHashMap<>();
+	//private static ConcurrentHashMap<String, Session> sessions = new ConcurrentHashMap<>();
+	private static Vector<Session> sessions=new Vector<>();
+	
+	private static class WSHolder{
+		static ServidorWS singleton=new ServidorWS();
+	}
+	
+	public static ServidorWS get() {
+		return WSHolder.singleton;
+	}
 	
 	@OnOpen
 	public void onOpen(Session session) {
-		Map<String, List<String>> mapa=session.getRequestParameterMap();
-		List<String> parametros = mapa.get("user");
-		sessions.put(parametros.get(0), session);
-		System.out.println(parametros.get(0));
+		sessions.add(session);
 	}
+
+	@OnMessage
+	public void onMessage(Session session, String mensaje) throws Exception {
+		JSONObject jso = new JSONObject(mensaje);
+		System.out.println(jso);
+		Manager.get().platoPreparado(jso);
+		session.getAsyncRemote().sendText(mensaje);
+	}
+
 	
-	@OnMessage 
-	public void onMessage(Session session, String mensaje) {
-		JSONObject jso=new JSONObject(mensaje);
-		String type=jso.getString("type");
-		switch (type) {
-		case "PlatoPreparado" :
-			break;
-		case "MensajeIndividual" :
-			String destinatario=jso.getString("destinatario");
-			String texto=jso.getString("texto");
-			enviar(destinatario, texto);
-			System.out.println(texto);
-			break;
-		case "MensajeTodos" :
-			texto=jso.getString("texto");
-			enviarTodos(texto);
-			break;
-		}
-	}
-
-	private void enviarTodos(String texto) {
-
-	}
-
-	private void enviar(String destinatario, String texto) {
-		Session sesionDestinatario=sessions.get(destinatario);
-		if(sesionDestinatario==null) {
-			sessions.remove(destinatario);
-			return;
-		}
-		JSONObject mensaje=new JSONObject();
-		mensaje.put("type", "MensajeIndividual");
-		mensaje.put("texto", texto);
-		sesionDestinatario.getAsyncRemote().sendText(mensaje.toString());
-	}
-
-	public static void solicitarPlatos(JSONArray platos) {
-		JSONObject mensaje = new JSONObject();
-		mensaje.put("type", "solicitudDePlatos");
-		mensaje.put("platos", platos);
+	public static void enviar(JSONObject jso) {
 		Enumeration<Session> sesiones = sessions.elements();
-		while(sesiones.hasMoreElements()) {
-			Session sesion=sesiones.nextElement();
-			sesion.getAsyncRemote().sendText(mensaje.toString());
+		while (sesiones.hasMoreElements()) {
+			Session sesion = sesiones.nextElement();
+			sesion.getAsyncRemote().sendText(jso.toString());
 		}
 	}
 }

@@ -11,11 +11,12 @@ public class PlatoPedido {
 	private Plato plato;
 	@JSONable
 	private int unidades;
+	private boolean preparado;
 	
-	public PlatoPedido() {
-	}
+	public PlatoPedido() {}
 	
 	public PlatoPedido(Plato plato, int unidades) {
+		this.preparado=false;
 		this.plato=plato;
 		this.unidades=unidades;
 	}
@@ -23,6 +24,22 @@ public class PlatoPedido {
 	public JSONObject toJSONObject() {
 		JSONObject jso=this.plato.toJSONObject();
 		jso.put("unidades", this.unidades);
+		jso.put("preparado", this.preparado);
 		return jso;
+	}
+	
+	public Plato getPlato() {
+		return plato;
+	}
+	public int getUnidades() {
+		return unidades;
+	}
+	
+	public boolean getPreparado() {
+		return preparado;
+	}
+	
+	public void setPreparado(boolean preparado) {
+		this.preparado=preparado;
 	}
 }
