@@ -24,5 +24,4 @@ public class DAOCategoria {
 		}
 		return result;
 	}
-////EYOOOOO
 }
