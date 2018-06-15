@@ -18,7 +18,7 @@ public class Manager {
 	private JSONArray jsaCategorias;
 	private ConcurrentHashMap<String, Categoria> categorias;
 	
-	//DAO o BSNeador
+	//DAO o BSONeador
 	private Manager() {
 		mesas=DAOMesa.load();
 		cargarCategorias();
