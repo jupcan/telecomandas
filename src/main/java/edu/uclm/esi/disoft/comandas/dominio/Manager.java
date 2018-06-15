@@ -128,7 +128,7 @@ public class Manager {
 				pp.setPreparado(true);
 		}
 		mesa.getComandaActual().setPlatos(platos);
-		BSONeador.update(mesa.getComandaActual());
+		BSONeador.update(mesa.getComandaActual());//Cambiar Update en BSONeador
 
 	}
 }

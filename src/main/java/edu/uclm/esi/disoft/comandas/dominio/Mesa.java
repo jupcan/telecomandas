@@ -56,7 +56,7 @@ public class Mesa {
 		return jso;
 	}
 
-	public Object getComandaActual() {
+	public Comanda getComandaActual() {
 		return comandaActual;
 	}
 
