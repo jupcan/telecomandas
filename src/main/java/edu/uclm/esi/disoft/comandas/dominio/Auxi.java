@@ -7,5 +7,4 @@ public class Auxi {
 	public static Date getHora(long horaApertura) {
 		return new Date(horaApertura);
 	}
-
 }
