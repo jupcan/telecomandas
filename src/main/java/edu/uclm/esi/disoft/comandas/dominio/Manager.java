@@ -20,9 +20,14 @@ public class Manager {
 	//<string,categoria>
 	private ConcurrentHashMap<Object, Object> categorias;
 	
-	private Manager() throws InstantiationException, IllegalAccessException, NoSuchFieldException, SecurityException, Exception { //dejamos de usar los dao para hacerlo genérico con bsoneador
-		mesas=BSONeador.load(Mesa.class);
-		cargarCategorias();
+	private Manager() { //dejamos de usar los dao para hacerlo con bsoneador
+		try {
+			mesas=BSONeador.load(Mesa.class);
+			cargarCategorias();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	private void cargarCategorias() throws InstantiationException, IllegalAccessException, NoSuchFieldException, SecurityException, Exception {
@@ -36,7 +41,7 @@ public class Manager {
 		}
 	}
 
-	private static class ManagerHolder{
+	private static class ManagerHolder {
 		static Manager singleton=new Manager();
 	}
 	
