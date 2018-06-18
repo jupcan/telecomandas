@@ -167,7 +167,7 @@ public class BSONeador {
 		}
 	}
 	
-	private static void update(Object objeto, Object... nombresValores) throws Exception { //Object[] pasamos varios arrays separados por comas
+	public static void update(Object objeto, Object... nombresValores) throws Exception { //Object[] pasamos varios arrays separados por comas
 		if(nombresValores.length==0 || nombresValores.length % 2!=0)
 			throw new IllegalArgumentException("Esperaba un número par de parámetros.");
 		

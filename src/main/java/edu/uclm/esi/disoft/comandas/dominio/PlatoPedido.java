@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import edu.uclm.esi.disoft.comandas.etiquetas.BSONable;
 import edu.uclm.esi.disoft.comandas.etiquetas.JSONable;
 
+@BSONable
 public class PlatoPedido {
 	@JSONable(campo = "_id", nombre = "idPlato")
 	@BSONable(campo = "_id", nombre = "idPlato", OnDeleteCascade=true) // crear borrado en cascada, ej examen
@@ -21,13 +22,6 @@ public class PlatoPedido {
 		this.unidades=unidades;
 	}
 
-	public JSONObject toJSONObject() {
-		JSONObject jso=this.plato.toJSONObject();
-		jso.put("unidades", this.unidades);
-		jso.put("preparado", this.preparado);
-		return jso;
-	}
-	
 	public Plato getPlato() {
 		return plato;
 	}
@@ -41,5 +35,12 @@ public class PlatoPedido {
 	
 	public void setPreparado(boolean preparado) {
 		this.preparado=preparado;
+	}
+	
+	public JSONObject toJSONObject() {
+		JSONObject jso=this.plato.toJSONObject();
+		jso.put("unidades", this.unidades);
+		jso.put("preparado", this.preparado);
+		return jso;
 	}
 }

@@ -33,14 +33,6 @@ public class Comanda {
 		this._id = _id;
 	}
 	
-	public void calPrecio() {
-		double precio = 0.0;
-		for(int i=0; i<this.platos.size() ;i++) {
-			precio += (this.platos.get(i).getPlato().getPrecio() * this.platos.get(i).getUnidades());
-		}
-		this.precio = precio;
-	}
-	
 	public void cerrar() {
 		this.horaCierre=System.currentTimeMillis();
 	}
@@ -50,9 +42,25 @@ public class Comanda {
 		this.platos.add(platoPedido);
 		return platoPedido;
 	}
-
+	
+	public void calPrecio() {
+		double precio = 0.0;
+		for(int i=0; i<this.platos.size() ;i++) {
+			precio += (this.platos.get(i).getPlato().getPrecio() * this.platos.get(i).getUnidades());
+		}
+		this.precio = precio;
+	}
+	
 	public Vector<PlatoPedido> getPlatos() {
 		return platos;
+	}
+	
+	public void setPlatos(Vector<PlatoPedido> platos2) {
+		this.platos = platos2;
+	}
+	
+	public double getPrecioComanda() {
+		return precio;
 	}
 	
 	public JSONObject toJSONObject() {
@@ -65,13 +73,5 @@ public class Comanda {
 		jso.put("platos", platosPedidos);
 		jso.put("precio", precio);
 		return jso;
-	}
-	
-	public void setPlatos(Vector<PlatoPedido> platos2) {
-		this.platos = platos2;
-	}
-
-	public double getPrecioComanda() {
-		return precio;
 	}
 }

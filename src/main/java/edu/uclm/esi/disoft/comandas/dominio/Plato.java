@@ -11,25 +11,16 @@ public class Plato {
 	private String _id;
 	@JSONable
 	private String nombre;
+	private String idCategoria;
 	@JSONable
 	private double precio;
-	private String idCategoria;
 	
-	public Plato() {
-	}
+	public Plato() {}
 
 	public Plato(String _id, String nombre, double precio) {
 		this._id=_id;
 		this.nombre=nombre;
 		this.precio=precio;
-	}
-
-	public JSONObject toJSONObject() {
-		JSONObject jso=new JSONObject();
-		jso.put("_id", _id);
-		jso.put("nombre", nombre);
-		jso.put("precio", precio);
-		return jso;
 	}
 
 	public String getId() {
@@ -42,6 +33,13 @@ public class Plato {
 
 	public void setCategoria(String idCategoria) {
 		this.idCategoria=idCategoria;
-		
+	}
+	
+	public JSONObject toJSONObject() {
+		JSONObject jso=new JSONObject();
+		jso.put("_id", _id);
+		jso.put("nombre", nombre);
+		jso.put("precio", precio);
+		return jso;
 	}
 }

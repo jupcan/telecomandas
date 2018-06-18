@@ -16,13 +16,6 @@ public class Mesa {
 	public Mesa(int id) {
 		this._id=id;
 	}
-
-	public JSONObject toJSONObject() {
-		JSONObject jso=new JSONObject();
-		jso.put("_id", this._id);
-		jso.put("estado", comandaActual==null ? "Libre" : "Ocupada");
-		return jso;
-	}
 	
 	public boolean estaLibre() {
 		return comandaActual==null;
@@ -31,7 +24,7 @@ public class Mesa {
 	public void abrir() throws Exception {
 		if (comandaActual!=null)
 			throw new Exception("La mesa ya está abierta. Elige otra");
-		comandaActual=new Comanda();
+		comandaActual=new Comanda(this._id);
 	}
 
 	public void cerrar() throws Exception {
@@ -45,6 +38,21 @@ public class Mesa {
 		return this.comandaActual.add(plato, unidades);
 	}
 
+	public Comanda getComandaActual() {
+		return comandaActual;
+	}
+
+	public void setPrecioComanda() {
+		comandaActual.calPrecio();
+	}
+	
+	public JSONObject toJSONObject() {
+		JSONObject jso=new JSONObject();
+		jso.put("_id", this._id);
+		jso.put("estado", comandaActual==null ? "Libre" : "Ocupada");
+		return jso;
+	}
+	
 	public JSONObject estado() {
 		JSONObject jso=new JSONObject();
 		jso.put("id", this._id);
@@ -54,13 +62,5 @@ public class Mesa {
 			jso.put("comanda", this.comandaActual.toJSONObject());
 		}
 		return jso;
-	}
-
-	public Comanda getComandaActual() {
-		return comandaActual;
-	}
-
-	public void setPrecioComanda() {
-		comandaActual.calPrecio();
 	}
 }
