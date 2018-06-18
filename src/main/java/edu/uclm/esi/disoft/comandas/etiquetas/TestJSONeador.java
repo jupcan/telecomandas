@@ -5,8 +5,6 @@ import static org.junit.Assert.*;
 import org.json.JSONObject;
 import org.junit.Test;
 
-import edu.uclm.esi.disoft.comandas.dominio.Comanda;
-import edu.uclm.esi.disoft.comandas.dominio.Mesa;
 import edu.uclm.esi.disoft.comandas.dominio.Plato;
 import edu.uclm.esi.disoft.comandas.dominio.PlatoPedido;
 
@@ -25,5 +23,4 @@ public class TestJSONeador {
 		System.out.println(valorEsperado);
 		assertEquals(jso.toString(), valorEsperado);
 	}
-
 }

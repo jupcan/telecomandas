@@ -1,17 +1,13 @@
 package edu.uclm.esi.disoft.comandas.ws;
 
 import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
 import java.util.Vector;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import edu.uclm.esi.disoft.comandas.dominio.Manager;
@@ -42,8 +38,7 @@ public class ServidorWS {
 		session.getAsyncRemote().sendText(mensaje);
 	}
 
-	
-	public static void enviar(JSONObject jso) {
+	public static void send(JSONObject jso) {
 		Enumeration<Session> sesiones = sessions.elements();
 		while (sesiones.hasMoreElements()) {
 			Session sesion = sesiones.nextElement();

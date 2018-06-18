@@ -62,7 +62,7 @@ public class Manager {
 			JSONObject jso = new JSONObject();
 			jso.put("type", "cerrar");
 			jso.put("idComanda", idComanda);
-			ServidorWS.enviar(jso);
+			ServidorWS.send(jso);
 		}
 	}
 	
@@ -103,7 +103,7 @@ public class Manager {
 		}
 		//enviamos a cocina a través del ws
 		jso.put("platos", jsa);
-		ServidorWS.enviar(jso);
+		ServidorWS.send(jso);
 	}
 	
 	public JSONObject getEstadoMesa(int id) {
