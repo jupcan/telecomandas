@@ -11,7 +11,7 @@ import edu.uclm.esi.disoft.comandas.dominio.Categoria;
 
 public class DAOCategoria {
 
-	public static ConcurrentHashMap<String, Categoria> load() {
+	public static ConcurrentHashMap<String, Categoria> load() throws InstantiationException, IllegalAccessException, NoSuchFieldException, SecurityException, Exception {
 		MongoCollection<BsonDocument> categorias = MongoBroker.get().getCollection("categorias");
 		ConcurrentHashMap<String, Categoria> result=new ConcurrentHashMap<>();
 		MongoCursor<BsonDocument> fiCategorias = categorias.find().iterator();

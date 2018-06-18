@@ -8,8 +8,8 @@ import org.bson.types.ObjectId;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import edu.uclm.esi.disoft.comandas.dao.DAOCategoria;
-import edu.uclm.esi.disoft.comandas.dao.DAOMesa;
+//import edu.uclm.esi.disoft.comandas.dao.DAOCategoria;
+//import edu.uclm.esi.disoft.comandas.dao.DAOMesa;
 import edu.uclm.esi.disoft.comandas.etiquetas.BSONeador;
 import edu.uclm.esi.disoft.comandas.ws.ServidorWS;
 
