@@ -29,7 +29,7 @@ public class BSONeador {
 	public static void insert(Object objeto) throws Exception {
 		/*
 		 * 1. Traducir objeto a bso
-		 * 	1.1 Por reflexión, leer cada campo del objeto, leer su valor y colocarlo en bso
+		 * 1.1 Por reflexión, leer cada campo del objeto, leer su valor y colocarlo en bso
 		 * 2. Acceder a una colección que se llame igual que la clase del objeto
 		 * 3. A través del MongoBroker, insertar el bso que se acaba de construir en la colección
 		 */

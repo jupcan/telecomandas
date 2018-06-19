@@ -19,7 +19,7 @@ public class Categoria {
 	
 	public Categoria() {}
 	
-	public Categoria(String _id, String nombre) throws InstantiationException, IllegalAccessException, NoSuchFieldException, SecurityException, Exception {
+	public Categoria(String _id, String nombre) throws Exception {
 		this._id=_id;
 		this.nombre=nombre;
 		this.jsaPlatos=new JSONArray();
@@ -30,7 +30,7 @@ public class Categoria {
 			this.jsaPlatos.put(plato.toJSONObject());
 		}
 	}
-
+	
 	public Plato find(String idPlato) {
 		Plato plato = (Plato) this.platos.get(idPlato);
 		return plato;
