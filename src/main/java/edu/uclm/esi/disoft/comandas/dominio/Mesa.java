@@ -38,6 +38,10 @@ public class Mesa {
 		return this.comandaActual.add(plato, unidades);
 	}
 
+	public void setComandaActual(Comanda comandaActual) {
+		this.comandaActual = comandaActual;
+	}
+	
 	public Comanda getComandaActual() {
 		return comandaActual;
 	}
@@ -52,6 +56,8 @@ public class Mesa {
 		jso.put("estado", comandaActual==null ? "Libre" : "Ocupada");
 		return jso;
 	}
+	
+	public void seleccionar() {}
 	
 	public JSONObject estado() {
 		JSONObject jso=new JSONObject();

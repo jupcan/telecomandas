@@ -1,42 +1,36 @@
 package edu.uclm.esi.disoft.comandas.dominio;
 
 import java.util.Enumeration;
-import java.util.Vector;
+
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.bson.types.ObjectId;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-//import edu.uclm.esi.disoft.comandas.dao.DAOCategoria;
-//import edu.uclm.esi.disoft.comandas.dao.DAOMesa;
+import edu.uclm.esi.disoft.comandas.dao.DAOCategoria;
+import edu.uclm.esi.disoft.comandas.dao.DAOMesa;
 import edu.uclm.esi.disoft.comandas.etiquetas.BSONeador;
 import edu.uclm.esi.disoft.comandas.ws.ServidorWS;
 
 public class Manager {
-	//<integer,mesa>
-	private ConcurrentHashMap<Object, Object> mesas;
+	private ConcurrentHashMap<Integer, Mesa> mesas; //<integer,mesa>
+	private ConcurrentHashMap<String, Categoria> categorias; //<string,categoria>
+	private ConcurrentHashMap<String, String> platoRdy;
 	private JSONArray jsaCategorias;
-	//<string,categoria>
-	private ConcurrentHashMap<Object, Object> categorias;
 	
-	private Manager() { //dejamos de usar los dao para hacerlo con bsoneador
-		try {
-			mesas=BSONeador.load(Mesa.class);
-			cargarCategorias();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	private Manager() { //daos o bsoneador en load¿??
+		mesas=DAOMesa.load();
+		cargarCategorias();
+		this.platoRdy=new ConcurrentHashMap<>();
 	}
 	
-	private void cargarCategorias() throws InstantiationException, IllegalAccessException, NoSuchFieldException, SecurityException, Exception {
-		categorias=BSONeador.load(Categoria.class);
+	private void cargarCategorias() {
+		categorias=DAOCategoria.load();
 		this.jsaCategorias=new JSONArray();
-		Enumeration<Object> keys=categorias.keys();
+		Enumeration<String> keys=categorias.keys();
 		while (keys.hasMoreElements()) {
 			String key=keys.nextElement().toString();
-			Categoria categoria=(Categoria) categorias.get(key);
+			Categoria categoria=categorias.get(key);
 			this.jsaCategorias.put(categoria.toJSONObject());
 		}
 	}
@@ -50,25 +44,19 @@ public class Manager {
 	}
 	
 	public void abrirMesa(int id) throws Exception {
-		Mesa mesa=(Mesa) mesas.get(id);
+		Mesa mesa=mesas.get(id);
 		mesa.abrir();
 	}
 	
 	public void cerrarMesa(int id) throws Exception {
-		Mesa mesa=(Mesa) mesas.get(id);
-		String idComanda = mesa.getComandaActual().get_id();
+		Mesa mesa=mesas.get(id);
 		mesa.cerrar();
-		if(idComanda != null) {
-			JSONObject jso = new JSONObject();
-			jso.put("type", "cerrar");
-			jso.put("idComanda", idComanda);
-			ServidorWS.send(jso);
-		}
+		BSONeador.update(mesa.getComandaActual(), "horaCierre", mesa.getComandaActual().getHoraCierre());
+		mesa.setComandaActual(null);
 	}
 	
 	public void recibirComanda(int idMesa, JSONArray platos) throws Exception { //antiguo addToComanda
-		Vector<PlatoPedido> platosNuevos = new Vector<>();
-		Mesa mesa=(Mesa) mesas.get(idMesa);
+		Mesa mesa=mesas.get(idMesa);
 		if (mesa.estaLibre())
 			throw new Exception("La mesa " + idMesa + " está libre. Ábrela primero");
 		for (int i=0; i<platos.length(); i++) {
@@ -76,39 +64,27 @@ public class Manager {
 			String idCategoria=jsoPlato.getString("idCategoria");
 			String idPlato=jsoPlato.getString("idPlato");
 			int unidades=jsoPlato.getInt("unidades");
-			Categoria categoria=(Categoria) this.categorias.get(idCategoria);
+			Categoria categoria=this.categorias.get(idCategoria);
 			Plato plato=categoria.find(idPlato);
-			platosNuevos.add(mesa.addToComanda(plato, unidades));
+			mesa.addToComanda(plato, unidades);
 		}
 		mesa.setPrecioComanda();
-		
-		if(mesa.getComandaActual().get_id() == null) {
-			ObjectId id = new ObjectId();
-			mesa.getComandaActual().set_id(id.toHexString());
-			BSONeador.insert(mesa.getComandaActual());
-		} else
-			BSONeador.update(mesa.getComandaActual());
-		
-		solicitarPlatosCocina(mesa.getComandaActual().get_id(), idMesa, platosNuevos);
+		Comanda comanda=mesa.getComandaActual();
+		try {
+			BSONeador.insert(comanda);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		ServidorWS.PlatosACocina(platos, idMesa); //ws connection boi
 	}
 	
-	public void solicitarPlatosCocina(String idComanda, int idMesa, Vector<PlatoPedido> platos) {
-		JSONObject jso = new JSONObject();
-		jso.put("type", "platos");
-		jso.put("idComanda", idComanda);
-		jso.put("idMesa", idMesa);
-		JSONArray jsa = new JSONArray();
-		for(PlatoPedido pp : platos) {
-			jsa.put(pp.toJSONObject());
-		}
-		//enviamos a cocina a través del ws
-		jso.put("platos", jsa);
-		ServidorWS.send(jso);
+	public void seleccionarMesa(int id) throws Exception {
+		Mesa mesa=mesas.get(id);
+		mesa.seleccionar();
 	}
 	
 	public JSONObject getEstadoMesa(int id) {
-		Mesa mesa = (Mesa) this.mesas.get(id);
-		return mesa.estado();
+		return this.mesas.get(id).estado();
 	}
 	
 	public JSONArray getCategorias() {
@@ -116,29 +92,21 @@ public class Manager {
 	}
 	
 	public JSONArray getPlatosDeCategoria(String idCategoria) {
-		Categoria categoria=(Categoria) this.categorias.get(idCategoria);
+		Categoria categoria=this.categorias.get(idCategoria);
 		return categoria.getPlatos();
 	}
 	
-	public void platoPreparado(JSONObject jso)throws Exception{
-		int idMesa = jso.getInt("idMesa");
-		String idPlato = jso.getString("id");
-		Mesa mesa=(Mesa)mesas.get(idMesa);
-		Vector<PlatoPedido> platos = mesa.getComandaActual().getPlatos();
-		for(PlatoPedido pp : platos) {
-			if(pp.getPlato().getId().equals(idPlato))
-				pp.setPreparado(true);
-		}
-		mesa.getComandaActual().setPlatos(platos);
-		BSONeador.update(mesa.getComandaActual());
+	public void platoPreparado(String nombrePlato, int idMesa) {
+		String mesa = "mesa:"+idMesa;
+		this.platoRdy.put(mesa, nombrePlato);
 	}
 	
 	public JSONArray getMesas() {
 		JSONArray result=new JSONArray();
-		Enumeration<Object> eMesas = this.mesas.elements();
+		Enumeration<Mesa> eMesas = this.mesas.elements();
 		Mesa mesa;
 		while (eMesas.hasMoreElements()) {
-			mesa=(Mesa) eMesas.nextElement();
+			mesa=eMesas.nextElement();
 			result.put(mesa.toJSONObject());
 		}
 		return result;

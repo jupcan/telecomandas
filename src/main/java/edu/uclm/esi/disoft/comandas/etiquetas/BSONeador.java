@@ -1,6 +1,7 @@
 package edu.uclm.esi.disoft.comandas.etiquetas;
 
 import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,7 +12,6 @@ import org.bson.BsonDocument;
 import org.bson.BsonDouble;
 import org.bson.BsonInt32;
 import org.bson.BsonInt64;
-import org.bson.BsonObjectId;
 import org.bson.BsonString;
 import org.bson.BsonValue;
 import org.bson.types.ObjectId;
@@ -21,8 +21,6 @@ import com.mongodb.client.MongoCursor;
 
 import edu.uclm.esi.disoft.comandas.dao.MongoBroker;
 import edu.uclm.esi.disoft.comandas.dominio.Mesa;
-import edu.uclm.esi.disoft.comandas.dominio.Plato;
-import edu.uclm.esi.disoft.comandas.dominio.PlatoPedido;
 
 public class BSONeador {
 	
@@ -70,49 +68,45 @@ public class BSONeador {
 			return new BsonDouble((double)valorDelCampo);
 		if(tipo==String.class)
 			return new BsonString(valorDelCampo.toString());
-		if(tipo.isAnnotationPresent(BSONable.class)) {
-			Field[] campos=valorDelCampo.getClass().getDeclaredFields();
-			BsonDocument bso=new BsonDocument();
-			for(int i=0; i<campos.length; i++) {
-				Field campo=campos[i];
+		if(Collection.class.isAssignableFrom(tipo)) {
+			BsonArray bsa = new BsonArray();
+			Collection<?> coleccion = (Collection) valorDelCampo;
+			Iterator<?> iterador = coleccion.iterator();
+			while(iterador.hasNext()) {
+				Object objeto = iterador.next();
+				BsonValue bsoValue = getBsonValue(objeto);
+				bsa.add(bsoValue);
+			}
+			return bsa;
+		}
+		if (isBSONable(tipo)) {
+			Field[] campos = valorDelCampo.getClass().getDeclaredFields();
+			BsonDocument bso = new BsonDocument();
+			for(int i =0; i<campos.length;i++) {
+				Field campo = campos[i];
 				campo.setAccessible(true);
 				bso.put(campo.getName(), getBsonValue(campo.get(valorDelCampo)));
 			}
 			return bso;
 		}
-		if(tipo==Vector.class) {
-			Vector vector = (Vector)valorDelCampo;
-			BsonArray bsoa = new BsonArray();
-			for(int i=0;i<vector.size();i++) {
-				BsonDocument bso = new BsonDocument();
-				Object objeto = vector.get(i);
-				Field[] campos = objeto.getClass().getDeclaredFields();
-				for(int j=0;j<campos.length;j++) {
-					Field campo = campos[j];
-					campo.setAccessible(true);
-					bso.put(campo.getName(), getBsonValue(campo.get(objeto)));
-				}
-				bsoa.add(bso);
-			}
-			return bsoa;
-		}
 		return null;
 	}
+	
+	private static boolean isBSONable(Class<? extends Object> tipo) {
+		Field[] campos=tipo.getDeclaredFields();
+		for (Field campo : campos)
+			if(campo.isAnnotationPresent(BSONable.class))
+				return true;
+		return false;
+	}
 
-	public static ConcurrentHashMap<Object, Object> load(Class<?> clase, Object... variables) throws Exception, InstantiationException, IllegalAccessException, NoSuchFieldException, SecurityException {
-		ConcurrentHashMap<Object, Object> result=new ConcurrentHashMap<>();
-		MongoCollection<BsonDocument> collection=MongoBroker.get().getCollection(clase.getName());
-		BsonDocument criterio=new BsonDocument(); String buscador = ""; String valor = "";
-		
-		if(variables.length > 0) {
-			buscador = variables[0].toString();
-			valor = variables[1].toString();
-			criterio.put(buscador, new BsonObjectId(new ObjectId(valor)));
-		}
-		MongoCursor<BsonDocument> fi=collection.find().iterator();
+	public static ConcurrentHashMap<Object, Object> load(Class<?> clase) throws Exception {
+		ConcurrentHashMap<Object, Object> result = new ConcurrentHashMap<>();
+		MongoCollection<BsonDocument> coleccion = MongoBroker.get().getCollection(clase.getName());
+		MongoCursor<BsonDocument> fi = coleccion.find().iterator();
 		while(fi.hasNext()) {
-			BsonDocument bso=fi.next();
-			Object objeto=getObject(clase, bso);
+			BsonDocument bso = fi.next();
+			Object objeto = getObject(clase,bso); //Una vez una comanda otra vez un plato otra vez mesa
 			result.put(getId(bso), objeto);
 		}
 		return result;
@@ -131,7 +125,7 @@ public class BSONeador {
 
 	private static Object getObject(Class<?> clase, BsonDocument bso) throws Exception {
 		Object result=clase.newInstance(); //Mesa result=new Mesa() pero de forma reflexiva
-		Iterator<String> nombresDeLosCampos = bso.keySet().iterator();
+		Iterator<String> nombresDeLosCampos = bso.keySet().iterator(); //set de elementos del bson
 		while(nombresDeLosCampos.hasNext()) {
 			String nombreDeCampo=nombresDeLosCampos.next();
 			Field campo=clase.getDeclaredField(nombreDeCampo);
@@ -172,36 +166,22 @@ public class BSONeador {
 			throw new IllegalArgumentException("Esperaba un número par de parámetros.");
 		
 		BsonDocument nuevosValores=new BsonDocument();
-		Class<?> clase = objeto.getClass();
-		Field [] campos=clase.getDeclaredFields();
-		
-		for(int i=0; i<campos.length; i++) {
-			Field campo = campos[i];
-			campo.setAccessible(true);
-			Object valor = campo.get(objeto);
-			if (valor==null)
-				continue;
-			BSONable anotacion = campo.getAnnotation(BSONable.class);
-			if (anotacion == null)
-				nuevosValores.append(campo.getName(), getBsonValue(valor));
-			else {
-				String nombreCampoAsociado = anotacion.campo();
-				String nombreNuevo = anotacion.nombre();
-				Field campoAsociado = valor.getClass().getDeclaredField(nombreCampoAsociado);
-				campoAsociado.setAccessible(true);
-				Object valorCampoAsociado = campoAsociado.get(valor);
-				nuevosValores.append(nombreNuevo, getBsonValue(valorCampoAsociado));
-			}
+		for (int i =0; i<nombresValores.length;i++) {
+			nuevosValores.put(nombresValores[i].toString(), getBsonValue(nombresValores[i+1])); //getBson para transformar el nombres valores de i mas 1 a Bson
+			i++; //cogemos a pares, no de uno en uno
 		}
-		nuevosValores.remove("_id");
+		Class<?> clase = objeto.getClass();
 		Field campoId = clase.getDeclaredField("_id");
-		campoId.setAccessible(true);
-		Object valorId = campoId.get(objeto);
+		campoId.setAccessible(true);	
+		Object valorId = campoId.get(objeto);  // valorId=objeto.get_id()
 		BsonDocument criterio = new BsonDocument();
 		criterio.put("_id", getBsonValue(valorId));
 		
-		MongoCollection<BsonDocument> collection = MongoBroker.get().getCollection(clase.getSimpleName());
-		collection.replaceOne(criterio, nuevosValores);
+		System.out.println(criterio);
+		System.out.println(nuevosValores);
+		MongoCollection<BsonDocument>coleccion = MongoBroker.get().getCollection(clase.getName());
+		System.out.println(clase.getName());
+		coleccion.replaceOne(criterio, nuevosValores);
 	}
 	
 	private static void insertar(Mesa mesa) {
@@ -259,29 +239,5 @@ public class BSONeador {
 			}
 		}
 		return null;
-	}
-
-	public static void main(String[] args) {
-		Plato plato=new Plato("128", "Tortilla de Gambas", 6.50);
-		PlatoPedido platoPedido=new PlatoPedido(plato, 2);
-		try {
-			BSONeador.insert(plato);
-			//BSONeador.insert(platoPedido);
-			BSONeador.delete(plato);
-			//BSONeador.update(plato, "nombre", "Tortilla de jamón");
-			//comprobar que se ha cambiado en platopedido
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		/*try {
-			Enumeration<Object> platos = BSONeador.load(Plato.class).elements();
-			while(platos.hasMoreElements()) {
-				Plato plato=(Plato) platos.nextElement();
-				System.out.println(plato.getId());
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}*/
 	}
 }

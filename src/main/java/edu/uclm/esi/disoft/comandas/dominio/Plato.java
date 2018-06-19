@@ -7,11 +7,10 @@ import edu.uclm.esi.disoft.comandas.etiquetas.JSONable;
 
 @BSONable(claseDependiente="PlatoPedido") //depende de platopedido para borrar en cascada
 public class Plato {
-	@JSONable
+	@BSONable @JSONable
 	private String _id;
 	@JSONable
 	private String nombre;
-	private String idCategoria;
 	@JSONable
 	private double precio;
 	
@@ -29,10 +28,6 @@ public class Plato {
 	
 	public double getPrecio() {
 		return precio;
-	}
-
-	public void setCategoria(String idCategoria) {
-		this.idCategoria=idCategoria;
 	}
 	
 	public JSONObject toJSONObject() {

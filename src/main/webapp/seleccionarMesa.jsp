@@ -6,7 +6,16 @@
 	String p=request.getParameter("p");
 	JSONObject jso=new JSONObject(p);
 	int idMesa=jso.getInt("_id");
-	JSONObject mesa=Manager.get().getEstadoMesa(idMesa);
+	
+	JSONObject respuesta=new JSONObject();
+	try {
+		Manager.get().seleccionarMesa(idMesa);
+		respuesta.put("resultado", "OK");
+	}
+	catch (Exception e) {
+		respuesta.put("resultado", "ERROR");
+		respuesta.put("mensaje", e.getMessage());
+	}
 %>
 
-<%= mesa %>
+<%= respuesta %>

@@ -10,7 +10,7 @@ public class PlatoPedido {
 	@JSONable(campo = "_id", nombre = "idPlato")
 	@BSONable(campo = "_id", nombre = "idPlato", OnDeleteCascade=true) // crear borrado en cascada, ej examen
 	private Plato plato;
-	@JSONable
+	@BSONable @JSONable
 	private int unidades;
 	private boolean preparado;
 	

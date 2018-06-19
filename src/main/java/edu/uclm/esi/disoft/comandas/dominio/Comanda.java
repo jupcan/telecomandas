@@ -1,5 +1,6 @@
 package edu.uclm.esi.disoft.comandas.dominio;
 
+import edu.uclm.esi.disoft.comandas.etiquetas.BSONable;
 import edu.uclm.esi.disoft.comandas.etiquetas.JSONable;
 import java.util.Vector;
 
@@ -10,9 +11,9 @@ public class Comanda {
 	private String _id;
 	@JSONable
 	private int idMesa;
-	@JSONable
+	@BSONable @JSONable
 	private long horaApertura, horaCierre;
-	@JSONable
+	@BSONable @JSONable
 	private Vector<PlatoPedido> platos;
 	@JSONable
 	private double precio;
@@ -35,6 +36,14 @@ public class Comanda {
 	
 	public void cerrar() {
 		this.horaCierre=System.currentTimeMillis();
+	}
+	
+	public void setHoraCierre(long horaCierre) {
+		this.horaCierre = horaCierre;
+	}
+	
+	public long getHoraCierre() {
+		return horaCierre;
 	}
 
 	public PlatoPedido add(Plato plato, int unidades) {
