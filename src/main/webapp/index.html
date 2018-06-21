@@ -259,16 +259,17 @@
 				var tr=document.createElement("tr"); tbody.appendChild(tr);
 				var plato=document.createElement("td"); tr.appendChild(plato);
 				plato.setAttribute("style", "text-align: left;");
-				var unidades=document.createElement("td"); tr.appendChild(unidades);
+				var borrar=document.createElement("td"); tr.appendChild(borrar);
 				if(mesaActual.platos[i].unidades==1) {
 					plato.innerHTML=mesaActual.platos[i].nombre;
 				} else {
 					plato.innerHTML='<span class="mdl-badge" data-badge="' + mesaActual.platos[i].unidades + '">' + mesaActual.platos[i].nombre + '</span>'
 				}
-				unidades.innerHTML='<div class="material-icons">delete</div>'
+				borrar.innerHTML='<div class="material-icons">delete</div>'
 				//borrar plato de comanda actual
-				//unidades.setAttribute("onclick", mesaActual.platos[i].unidades--);
-				unidades.setAttribute("style", "cursor: pointer;");
+				//borrar.setAttribute("onclick", mesaActual.platos[i].unidades--);
+				borrar.setAttribute("style", "cursor: pointer;");
+				
 			}
 		}
 	}

@@ -19,7 +19,7 @@ public class Categoria {
 	
 	public Categoria() {}
 	
-	public Categoria(String _id, String nombre) throws Exception {
+	public Categoria(String _id, String nombre) {
 		this._id=_id;
 		this.nombre=nombre;
 		this.jsaPlatos=new JSONArray();

@@ -19,13 +19,8 @@ public class DAOCategoria {
 			BsonDocument bsonCategoria = fiCategorias.next();
 			String _id = bsonCategoria.getObjectId("_id").getValue().toHexString();
 			String nombre=bsonCategoria.getString("nombre").getValue();
-			try {
-				Categoria categoria = new Categoria(_id, nombre);
-				result.put(_id, categoria);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			Categoria categoria = new Categoria(_id, nombre);
+			result.put(_id, categoria);
 		}
 		return result;
 	}
