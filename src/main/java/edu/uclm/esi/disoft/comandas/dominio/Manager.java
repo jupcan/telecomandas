@@ -51,6 +51,8 @@ public class Manager {
 	public void cerrarMesa(int id) throws Exception {
 		Mesa mesa=mesas.get(id);
 		mesa.cerrar();
+		if (mesa.getComandaActual()==null)
+			return;
 		BSONeador.update(mesa.getComandaActual(), "horaCierre", mesa.getComandaActual().getHoraCierre());
 		mesa.setComandaActual(null);
 	}

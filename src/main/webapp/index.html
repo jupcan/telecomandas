@@ -263,15 +263,21 @@
 				if(mesaActual.platos[i].unidades==1) {
 					plato.innerHTML=mesaActual.platos[i].nombre;
 				} else {
-					plato.innerHTML='<span class="mdl-badge" data-badge="' + mesaActual.platos[i].unidades + '">' + mesaActual.platos[i].nombre + '</span>'
+					plato.innerHTML="<span id='plato_" + i + "' class='mdl-badge' data-badge='" + mesaActual.platos[i].unidades + "'>" + mesaActual.platos[i].nombre + "</span>";
 				}
 				borrar.innerHTML='<div class="material-icons">delete</div>'
 				//borrar plato de comanda actual
-				//borrar.setAttribute("onclick", mesaActual.platos[i].unidades--);
+				borrar.setAttribute("onclick", "restarUnidades(" + i + ")");
 				borrar.setAttribute("style", "cursor: pointer;");
 				
 			}
 		}
+	}
+	
+	function restarUnidades(index) {
+		mesaActual.platos[index].unidades--;
+		var platoModificado=document.getElementById("plato_" + index);
+		platoModificado.setAttribute("data-badge", mesaActual.platos[index].unidades);
 	}
 	
 	function cambiarEstado(idMesa, estado) {
