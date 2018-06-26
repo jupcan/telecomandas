@@ -15,8 +15,6 @@ public class Comanda {
 	private long horaApertura, horaCierre;
 	@BSONable @JSONable
 	private Vector<PlatoPedido> platos;
-	@JSONable
-	private double precio;
 	
 	public Comanda() {}
 	
@@ -24,7 +22,6 @@ public class Comanda {
 		this.idMesa=idMesa;
 		this.horaApertura=System.currentTimeMillis();
 		this.platos=new Vector<>();
-		this.precio=0.0;
 	}
 
 	public String get_id() {
@@ -52,24 +49,12 @@ public class Comanda {
 		return platoPedido;
 	}
 	
-	public void calPrecio() {
-		double precio = 0.0;
-		for(int i=0; i<this.platos.size() ;i++) {
-			precio += (this.platos.get(i).getPlato().getPrecio() * this.platos.get(i).getUnidades());
-		}
-		this.precio = precio;
-	}
-	
 	public Vector<PlatoPedido> getPlatos() {
 		return platos;
 	}
 	
-	public void setPlatos(Vector<PlatoPedido> platos2) {
-		this.platos = platos2;
-	}
-	
-	public double getPrecioComanda() {
-		return precio;
+	public void setPlatos(Vector<PlatoPedido> platos) {
+		this.platos = platos;
 	}
 	
 	public JSONObject toJSONObject() {
@@ -80,7 +65,6 @@ public class Comanda {
 		for (PlatoPedido pp : this.platos)
 			platosPedidos.put(pp.toJSONObject());
 		jso.put("platos", platosPedidos);
-		jso.put("precio", precio);
 		return jso;
 	}
 }

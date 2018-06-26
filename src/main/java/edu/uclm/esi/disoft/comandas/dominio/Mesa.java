@@ -17,6 +17,17 @@ public class Mesa {
 		this._id=id;
 	}
 	
+	public JSONObject estado() {
+		JSONObject jso=new JSONObject();
+		jso.put("id", this._id);
+		if (comandaActual==null) 
+			jso.put("estado", "Libre");
+		else {
+			jso.put("comanda", this.comandaActual.toJSONObject());
+		}
+		return jso;
+	}
+	
 	public boolean estaLibre() {
 		return comandaActual==null;
 	}
@@ -45,28 +56,11 @@ public class Mesa {
 	public Comanda getComandaActual() {
 		return comandaActual;
 	}
-
-	public void setPrecioComanda() {
-		comandaActual.calPrecio();
-	}
 	
 	public JSONObject toJSONObject() {
 		JSONObject jso=new JSONObject();
 		jso.put("_id", this._id);
 		jso.put("estado", comandaActual==null ? "Libre" : "Ocupada");
-		return jso;
-	}
-	
-	public void seleccionar() {}
-	
-	public JSONObject estado() {
-		JSONObject jso=new JSONObject();
-		jso.put("id", this._id);
-		if (comandaActual==null) 
-			jso.put("estado", "Libre");
-		else {
-			jso.put("comanda", this.comandaActual.toJSONObject());
-		}
 		return jso;
 	}
 }

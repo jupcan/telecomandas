@@ -21,7 +21,7 @@ public class Plato {
 		this.nombre=nombre;
 		this.precio=precio;
 	}
-
+	
 	public String getId() {
 		return this._id;
 	}

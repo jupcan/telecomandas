@@ -6,32 +6,37 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import edu.uclm.esi.disoft.comandas.dao.DAOPlato;
 import edu.uclm.esi.disoft.comandas.etiquetas.BSONable;
-//import edu.uclm.esi.disoft.comandas.etiquetas.BSONeador;
+import edu.uclm.esi.disoft.comandas.etiquetas.BSONeador;
+
 @BSONable
 public class Categoria {
 	private String _id;
 	private String nombre;
 	private JSONArray jsaPlatos;
 	//<string, plato> es lo que teníamos pero tenemos que conseguirlo genéricamente para cualquier <object>¿??
-	private ConcurrentHashMap<String, Plato> platos;
+	private ConcurrentHashMap<Object, Object> platos;
 	
 	public Categoria() {}
 	
 	public Categoria(String _id, String nombre) {
 		this._id=_id;
 		this.nombre=nombre;
+	}
+	
+	public void init() throws InstantiationException, IllegalAccessException, NoSuchFieldException, SecurityException {
 		this.jsaPlatos=new JSONArray();
-		this.platos=DAOPlato.load(_id);
-		Enumeration<Plato> ePlatos = this.platos.elements();
+		this.platos=BSONeador.load(Plato.class, "idCategoria", this._id);
+		Enumeration<Object> ePlatos = this.platos.elements();
 		while (ePlatos.hasMoreElements()) {
-			this.jsaPlatos.put(ePlatos.nextElement().toJSONObject());
+			Plato plato = (Plato) ePlatos.nextElement();
+			this.jsaPlatos.put(plato.toJSONObject());
 		}
 	}
 	
 	public Plato find(String idPlato) {
-		return this.platos.get(idPlato);
+		Plato plato = (Plato) this.platos.get(idPlato);
+		return plato;
 	}
 	
 	public JSONArray getPlatos() {
