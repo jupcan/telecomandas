@@ -8,29 +8,16 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class Comanda {
-	private String _id;
-	@JSONable
-	private double idMesa;
 	@BSONable @JSONable
 	private long horaApertura, horaCierre;
 	@BSONable @JSONable
 	private Vector<PlatoPedido> platos;
 	
-	public Comanda() {}
-	
-	public Comanda(double idMesa) {
-		this.idMesa=idMesa;
+	public Comanda() {
 		this.horaApertura=System.currentTimeMillis();
 		this.platos=new Vector<>();
 	}
 
-	public String get_id() {
-		return _id;
-	}
-	public void set_id(String _id) {
-		this._id = _id;
-	}
-	
 	public void cerrar() {
 		this.horaCierre=System.currentTimeMillis();
 	}
@@ -43,10 +30,9 @@ public class Comanda {
 		return horaCierre;
 	}
 
-	public PlatoPedido add(Plato plato, int unidades) {
+	public void add(Plato plato, int unidades) {
 		PlatoPedido platoPedido=new PlatoPedido(plato, unidades);
 		this.platos.add(platoPedido);
-		return platoPedido;
 	}
 	
 	public Vector<PlatoPedido> getPlatos() {
@@ -59,7 +45,6 @@ public class Comanda {
 	
 	public JSONObject toJSONObject() {
 		JSONObject jso=new JSONObject();
-		jso.put("idMesa", this.idMesa);
 		jso.put("horaApertura", Auxi.getHora(this.horaApertura));
 		JSONArray platosPedidos=new JSONArray();
 		for (PlatoPedido pp : this.platos)

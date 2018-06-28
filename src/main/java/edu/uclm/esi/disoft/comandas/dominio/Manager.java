@@ -8,32 +8,30 @@ import org.bson.types.ObjectId;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import edu.uclm.esi.disoft.comandas.dao.DAOCategoria;
+import edu.uclm.esi.disoft.comandas.dao.DAOMesa;
 import edu.uclm.esi.disoft.comandas.etiquetas.BSONeador;
 import edu.uclm.esi.disoft.comandas.ws.ServidorWS;
 
 public class Manager {
-	private ConcurrentHashMap<Object, Object> mesas; //<integer,mesa>
-	private ConcurrentHashMap<Object, Object> categorias; //<string,categoria>
+	private ConcurrentHashMap<Integer, Mesa> mesas;
+	private ConcurrentHashMap<String, Categoria> categorias;
+	private ConcurrentHashMap<String, String> platosListos;
 	private JSONArray jsaCategorias;
 	
-	private Manager() { 
-		try {
-			mesas=BSONeador.load(Mesa.class);
-			cargarCategorias();
-		} catch (InstantiationException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	private Manager() {
+		mesas=DAOMesa.load();
+		cargarCategorias();
+		this.platosListos=new ConcurrentHashMap<>();
 	}
 	
-	private void cargarCategorias() throws InstantiationException, IllegalAccessException, NoSuchFieldException, SecurityException {
-		categorias=BSONeador.load(Categoria.class);
+	private void cargarCategorias() {
+		categorias=DAOCategoria.load();
 		this.jsaCategorias=new JSONArray();
-		Enumeration<Object> keys=categorias.keys();
+		Enumeration<String> keys=categorias.keys();
 		while (keys.hasMoreElements()) {
-			String key=keys.nextElement().toString();
-			Categoria categoria=(Categoria) categorias.get(key);
-			categoria.cargarPlatosCategoria();
+			String key=keys.nextElement();
+			Categoria categoria=categorias.get(key);
 			this.jsaCategorias.put(categoria.toJSONObject());
 		}
 	}
@@ -46,26 +44,25 @@ public class Manager {
 		return ManagerHolder.singleton;
 	}
 	
-	public void abrirMesa(double id) throws Exception {
-		Mesa mesa=(Mesa) mesas.get(id);
+	public void abrirMesa(int id) throws Exception {
+		Mesa mesa=mesas.get(id);
 		mesa.abrir();
 	}
 	
-	public void cerrarMesa(Double id) throws Exception {
-		Mesa mesa=(Mesa) mesas.get(id);
-		String idComanda = mesa.getComandaActual().get_id();
+	public void cerrarMesa(int id) throws Exception {
+		Mesa mesa=mesas.get(id);
 		mesa.cerrar();
-		if(idComanda != null) {
-			JSONObject jso = new JSONObject();
-			jso.put("type", "cerrar");
-			jso.put("idComanda", idComanda);
-			ServidorWS.send(jso); //ws connection
-		}
+		BSONeador.update(mesa.getComandaActual(),"horaCierre",mesa.getComandaActual().getHoraCierre());
+		mesa.setComandaActual(null);
 	}
 	
-	public void recibirComanda(int idMesa, JSONArray platos) throws Exception { //antiguo addToComanda
-		Mesa mesa=(Mesa) mesas.get(idMesa);
-		Vector<PlatoPedido> platosPedidos = new Vector<>();
+	public void seleccionarMesa(int id) throws Exception {
+		Mesa mesa=mesas.get(id);
+		mesa.seleccionar();
+	}
+	
+	public void recibirComanda(int idMesa, JSONArray platos) throws Exception {
+		Mesa mesa=mesas.get(idMesa);
 		if (mesa.estaLibre())
 			throw new Exception("La mesa " + idMesa + " está libre. Ábrela primero");
 		for (int i=0; i<platos.length(); i++) {
@@ -73,17 +70,17 @@ public class Manager {
 			String idCategoria=jsoPlato.getString("idCategoria");
 			String idPlato=jsoPlato.getString("idPlato");
 			int unidades=jsoPlato.getInt("unidades");
-			Categoria categoria=(Categoria) this.categorias.get(idCategoria);
+			Categoria categoria=this.categorias.get(idCategoria);
 			Plato plato=categoria.find(idPlato);
-			platosPedidos.add(mesa.addToComanda(plato, unidades));
+			mesa.addToComanda(plato, unidades);
 		}
-		if(mesa.getComandaActual().get_id() == null) {
-			ObjectId id=new ObjectId();
-			mesa.getComandaActual().set_id(id.toHexString());
-			BSONeador.insert(mesa.getComandaActual());
-		} else
-			BSONeador.update(mesa.getComandaActual());
-		PlatosACocina(mesa.getComandaActual().get_id(), idMesa, platosPedidos);
+		Comanda comanda = mesa.getComandaActual(); //add comanda to bbdd
+		try {
+			BSONeador.insert(comanda);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		ServidorWS.solicitarPlatos(platos,idMesa); //ws connection boi
 	}
 	
 	public JSONArray getCategorias() {
@@ -91,48 +88,26 @@ public class Manager {
 	}
 	
 	public JSONArray getPlatosDeCategoria(String idCategoria) {
-		Categoria categoria=(Categoria) this.categorias.get(idCategoria);
+		Categoria categoria=this.categorias.get(idCategoria);
 		return categoria.getPlatos();
 	}
 	
-	public JSONObject getEstadoMesa(double id) {
-		Mesa mesa = (Mesa) this.mesas.get(id);
-		return mesa.estado();
+	public JSONObject getEstadoMesa(int id) {
+		return this.mesas.get(id).estado();
 	}
 	
-	public void platoPreparado(JSONObject jso) throws Exception {
-		int idMesa = jso.getInt("idMesa");
-		String idPlato = jso.getString("id");
-		Mesa mesa=(Mesa)mesas.get(idMesa);
-		Vector<PlatoPedido> platos = mesa.getComandaActual().getPlatos();
-		for(PlatoPedido pp : platos) {
-			if(pp.getPlato().getId().equals(idPlato))
-				pp.setPreparado(true);
-		}
-		mesa.getComandaActual().setPlatos(platos);
-		BSONeador.update(mesa.getComandaActual());
-	}
-	
-	public void PlatosACocina(String idComanda, int idMesa, Vector<PlatoPedido> platos) {
-		JSONObject jso = new JSONObject();
-		jso.put("idMesa", idMesa);
-		jso.put("idComanda", idComanda);
-		jso.put("type", "platos");
-		JSONArray jsa = new JSONArray();
-		
-		for(PlatoPedido pp : platos) {
-			jsa.put(pp.toJSONObject());
-		}
-		jso.put("platos", jsa);
-		ServidorWS.send(jso); //ws connection
+	public void platoFinalizado(String nombrePlato, int idMesa) {
+		String mesa = "mesa:"+idMesa;
+		this.platosListos.put(mesa, nombrePlato);
+		//BSONeador.insert(PlatoListo);
 	}
 	
 	public JSONArray getMesas() {
 		JSONArray result=new JSONArray();
-		Enumeration<Object> eMesas = this.mesas.elements();
+		Enumeration<Mesa> eMesas = this.mesas.elements();
 		Mesa mesa;
 		while (eMesas.hasMoreElements()) {
-			mesa=(Mesa) eMesas.nextElement();
+			mesa=eMesas.nextElement();
 			result.put(mesa.toJSONObject());
 		}
 		return result;
