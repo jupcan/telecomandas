@@ -29,6 +29,20 @@ public class MongoBroker {
 	}
 	
 	private void createDatabase() {
+		try {
+			FileInputStream f=new FileInputStream("C:\\Users\\Pablo\\git\\telecomandasPabloJuan\\src\\main\\webapp\\recursos\\creacionTelecomandas.js");
+			byte[] b=new byte [f.available()];
+			f.read(b);
+			f.close();
+			String textoScript=new String(b);
+			this.database=this.client.getDatabase(databaseName);
+			this.database.runCommand(new BasicDBObject("eval", textoScript));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**private void createDatabase() {
 		String urlScript="https://github.com/jupcan/telecomandas/blob/master/src/main/webapp/recursos/creacionTelecomandas.js";
 		final HttpGet get=new HttpGet(urlScript);
 		HttpClient client= HttpClientBuilder.create().build();
@@ -47,7 +61,7 @@ public class MongoBroker {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
+	}**/
 
 	private boolean exists() {
 		MongoCursor<String> dbsCursor = client.listDatabaseNames().iterator();
