@@ -51,7 +51,7 @@ public class Manager {
 		mesa.abrir();
 	}
 	
-	public void cerrarMesa(int id) throws Exception {
+	public void cerrarMesa(Double id) throws Exception {
 		Mesa mesa=(Mesa) mesas.get(id);
 		String idComanda = mesa.getComandaActual().get_id();
 		mesa.cerrar();
