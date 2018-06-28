@@ -30,7 +30,7 @@ public class MongoBroker {
 	
 	private void createDatabase() {
 		try {
-			FileInputStream f=new FileInputStream("C:\\Users\\Pablo\\git\\telecomandasPabloJuan\\src\\main\\webapp\\recursos\\creacionTelecomandas.js");
+			FileInputStream f=new FileInputStream("C:\\Users\\Juan\\git\\comandas\\telecomandas\\src\\main\\webapp\\recursos\\creacionTelecomandas.js");
 			byte[] b=new byte [f.available()];
 			f.read(b);
 			f.close();

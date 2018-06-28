@@ -65,8 +65,8 @@ var cargarBD = function() {
 		var categoria = {
 			nombre 	: categorias[i]
 		};
-		db.Categoria.insert(categoria);
-		var idCategoria=db.Categoria.find({ nombre : categoria.nombre })[0]._id;
+		db.categorias.insert(categoria);
+		var idCategoria=db.categorias.find({ nombre : categoria.nombre })[0]._id;
 
 		print("Categoría: " + categoria.nombre);
 		var platosDeCategoria = platos[i];
@@ -79,7 +79,7 @@ var cargarBD = function() {
 				nombre 		: platosDeCategoria[j],
 				precio 		: preciosDeCategoria[j]
 			};
-			db.Plato.insert(plato);
+			db.platos.insert(plato);
 			print("\t\t" + plato.nombre + "\t\t\t\t" + plato.precio + " €");
 		}
 	}
@@ -88,15 +88,7 @@ var cargarBD = function() {
 			_id : i,
 			estado : "Libre"
 		};
-		db.Mesa.insert(mesa);
+		db.mesas.insert(mesa);
 	}
 };
-
 cargarBD();
-
-
-
-
-
-
-
