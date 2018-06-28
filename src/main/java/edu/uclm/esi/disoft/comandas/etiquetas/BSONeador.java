@@ -99,16 +99,21 @@ public class BSONeador {
 	}
 	
 	public static ConcurrentHashMap<Object, Object> load(Class<?> clase, Object... parametros) throws InstantiationException, IllegalAccessException, NoSuchFieldException, SecurityException {
-		BsonDocument criterio=new BsonDocument();
+		BsonDocument criterio=null;
 		ConcurrentHashMap<Object, Object> result = new ConcurrentHashMap<>();
 		MongoCollection<BsonDocument> coleccion = MongoBroker.get().getCollection(clase.getSimpleName());
 		String valor=""; String buscador=""; 
 		if(parametros.length > 0) {
+			criterio=new BsonDocument();
 			buscador = parametros[0].toString();
 			valor = parametros[1].toString();
 			criterio.put(buscador, new BsonObjectId(new ObjectId(valor)));
 		}
-		MongoCursor<BsonDocument> fi = coleccion.find(criterio).iterator(); //añadimos criterio creado con los parametros que pasamos separados por comas
+		MongoCursor<BsonDocument> fi;
+		if(criterio!=null)
+			fi=coleccion.find(criterio).iterator(); //añadimos criterio creado con los parametros que pasamos separados por comas
+		else
+			fi=coleccion.find().iterator();
 		while(fi.hasNext()) {
 			BsonDocument bso = fi.next();
 			Object objeto = getObject(clase,bso); //una vez una comanda, otra vez un plato, otra vez mesa
@@ -124,6 +129,9 @@ public class BSONeador {
 			return bso.get("_id").asInt32().getValue();
 		if(bso.get("_id").isObjectId()){
 			return bso.get("_id").asObjectId().getValue().toHexString();
+		}
+		if(bso.get("_id").isDouble()){
+			return bso.get("_id").asDouble().getValue();
 		}
 		return null;
 	}

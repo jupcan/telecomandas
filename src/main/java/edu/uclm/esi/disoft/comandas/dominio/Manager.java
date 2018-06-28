@@ -46,7 +46,7 @@ public class Manager {
 		return ManagerHolder.singleton;
 	}
 	
-	public void abrirMesa(int id) throws Exception {
+	public void abrirMesa(double id) throws Exception {
 		Mesa mesa=(Mesa) mesas.get(id);
 		mesa.abrir();
 	}

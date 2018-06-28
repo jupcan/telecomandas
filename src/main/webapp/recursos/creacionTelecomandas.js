@@ -58,15 +58,15 @@ var precios = [
 ];
 
 var cargarBD = function() {
-	db.categorias.drop();
-	db.platos.drop();
-	db.mesas.drop();
+	db.Categoria.drop();
+	db.Plato.drop();
+	db.Mesa.drop();
 	for (var i=0; i<categorias.length; i++) {
 		var categoria = {
 			nombre 	: categorias[i]
 		};
-		db.categorias.insert(categoria);
-		var idCategoria=db.categorias.find({ nombre : categoria.nombre })[0]._id;
+		db.Categoria.insert(categoria);
+		var idCategoria=db.Categoria.find({ nombre : categoria.nombre })[0]._id;
 
 		print("Categoría: " + categoria.nombre);
 		var platosDeCategoria = platos[i];
@@ -79,7 +79,7 @@ var cargarBD = function() {
 				nombre 		: platosDeCategoria[j],
 				precio 		: preciosDeCategoria[j]
 			};
-			db.platos.insert(plato);
+			db.Plato.insert(plato);
 			print("\t\t" + plato.nombre + "\t\t\t\t" + plato.precio + " €");
 		}
 	}
@@ -88,7 +88,7 @@ var cargarBD = function() {
 			_id : i,
 			estado : "Libre"
 		};
-		db.mesas.insert(mesa);
+		db.Mesa.insert(mesa);
 	}
 };
 

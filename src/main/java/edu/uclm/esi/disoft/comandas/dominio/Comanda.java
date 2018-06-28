@@ -10,7 +10,7 @@ import org.json.JSONObject;
 public class Comanda {
 	private String _id;
 	@JSONable
-	private int idMesa;
+	private double idMesa;
 	@BSONable @JSONable
 	private long horaApertura, horaCierre;
 	@BSONable @JSONable
@@ -18,7 +18,7 @@ public class Comanda {
 	
 	public Comanda() {}
 	
-	public Comanda(int idMesa) {
+	public Comanda(double idMesa) {
 		this.idMesa=idMesa;
 		this.horaApertura=System.currentTimeMillis();
 		this.platos=new Vector<>();

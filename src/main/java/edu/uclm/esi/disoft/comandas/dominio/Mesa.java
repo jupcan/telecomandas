@@ -8,12 +8,13 @@ import edu.uclm.esi.disoft.comandas.etiquetas.JSONable;
 @BSONable
 public class Mesa {
 	@JSONable
-	private int _id;
+	private double _id;
 	private Comanda comandaActual;
+	private String estado;
 	
 	public Mesa() {}
 
-	public Mesa(int id) {
+	public Mesa(double id) {
 		this._id=id;
 	}
 	
