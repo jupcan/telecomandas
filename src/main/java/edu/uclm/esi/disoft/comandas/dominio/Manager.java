@@ -95,7 +95,7 @@ public class Manager {
 		return categoria.getPlatos();
 	}
 	
-	public JSONObject getEstadoMesa(int id) {
+	public JSONObject getEstadoMesa(double id) {
 		Mesa mesa = (Mesa) this.mesas.get(id);
 		return mesa.estado();
 	}

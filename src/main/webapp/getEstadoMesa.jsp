@@ -5,7 +5,7 @@
 	response.addHeader("Access-Control-Allow-Origin", "*");
 	String p=request.getParameter("p");
 	JSONObject jso=new JSONObject(p);
-	int idMesa=jso.getInt("id");
+	double idMesa=jso.getDouble("_id");
 	JSONObject mesa=Manager.get().getEstadoMesa(idMesa);
 %>
 
