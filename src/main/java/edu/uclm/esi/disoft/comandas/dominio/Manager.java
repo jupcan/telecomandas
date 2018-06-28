@@ -33,7 +33,7 @@ public class Manager {
 		while (keys.hasMoreElements()) {
 			String key=keys.nextElement().toString();
 			Categoria categoria=(Categoria) categorias.get(key);
-			categoria.init();
+			categoria.cargarPlatosCategoria();
 			this.jsaCategorias.put(categoria.toJSONObject());
 		}
 	}

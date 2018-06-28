@@ -24,9 +24,9 @@ public class Categoria {
 		this.nombre=nombre;
 	}
 	
-	public void init() throws InstantiationException, IllegalAccessException, NoSuchFieldException, SecurityException {
+	public void cargarPlatosCategoria() throws InstantiationException, IllegalAccessException, NoSuchFieldException, SecurityException {
 		this.jsaPlatos=new JSONArray();
-		this.platos=BSONeador.load(Plato.class, "idCategoria", this._id);
+		this.platos=BSONeador.load(Plato.class, "_id", this._id);
 		Enumeration<Object> ePlatos = this.platos.elements();
 		while (ePlatos.hasMoreElements()) {
 			Plato plato = (Plato) ePlatos.nextElement();
