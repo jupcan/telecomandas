@@ -5,7 +5,7 @@
 	response.addHeader("Access-Control-Allow-Origin", "*"); //recibir info de otros sitios
 	String p=request.getParameter("p");
 	JSONObject jso=new JSONObject(p);
-	double idMesa=jso.getDouble("_id");
+	int idMesa=jso.getInt("_id");
 	
 	JSONObject respuesta=new JSONObject();
 	try {
