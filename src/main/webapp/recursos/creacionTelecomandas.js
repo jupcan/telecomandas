@@ -58,9 +58,9 @@ var precios = [
 ];
 
 var cargarBD = function() {
-	db.Categoria.drop();
-	db.Plato.drop();
-	db.Mesa.drop();
+	db.categorias.drop();
+	db.platos.drop();
+	db.mesas.drop();
 	for (var i=0; i<categorias.length; i++) {
 		var categoria = {
 			nombre 	: categorias[i]
