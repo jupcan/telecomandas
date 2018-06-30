@@ -5,7 +5,7 @@
 	response.addHeader("Access-Control-Allow-Origin", "*");
 	String p=request.getParameter("p");
 	JSONObject jso=new JSONObject(p);
-	int idMesa=jso.getInt("_id");
+	int idMesa=jso.getInt("id");
 	JSONArray platos = jso.getJSONArray("platos");
 	
 	JSONObject respuesta=new JSONObject();
