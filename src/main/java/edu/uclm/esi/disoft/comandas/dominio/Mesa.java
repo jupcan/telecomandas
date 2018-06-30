@@ -33,7 +33,7 @@ public class Mesa {
 		if (comandaActual==null)
 			throw new Exception("La mesa ya está cerrada.");
 		comandaActual.cerrar();
-		//comandaActual=null;
+		comandaActual=null;
 	}
 
 	public void addToComanda(Plato plato, int unidades) {

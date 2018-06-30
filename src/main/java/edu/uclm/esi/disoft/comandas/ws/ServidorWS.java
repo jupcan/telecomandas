@@ -13,7 +13,7 @@ import org.json.JSONObject;
 
 import edu.uclm.esi.disoft.comandas.dominio.Manager;
 
-@ServerEndpoint(value="/ServidorWSComandas")
+@ServerEndpoint(value="/ServidorWS")
 public class ServidorWS {
 	private static ConcurrentHashMap<String, Session> sessions = new ConcurrentHashMap<>();
 	
@@ -44,7 +44,7 @@ public class ServidorWS {
 		while(sesiones.hasMoreElements()) {
 			Session sesion = sesiones.nextElement();
 			if (sesion.isOpen())
-				sesion.getAsyncRemote().sendText(mensaje.toString());// Cuando hago este send es cuando se ejecuta el onmessage
+				sesion.getAsyncRemote().sendText(mensaje.toString());
 		}
 	}
 }
