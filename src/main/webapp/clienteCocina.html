@@ -2,54 +2,72 @@
 <html>
 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.teal-pink.min.css" />
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
 <head>
 <meta charset="UTF-8">
-<title>Cliente de Cocina</title>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<title>cocina</title>
+
 </head>
 <body>
-<div class="container" style="margin-top:50px">
-
-
-
-		<div class="page-header">
-			
-  			<h1>Tenemos que preparar ...</h1>
-		</div>
-
-		<div class="row">
-			<div class="col-md-6">
-				<div class="panel panel-default">
-				  <div class="panel-heading">Platos pendientes</div>
-				  <div class="panel-body" id="platosPendientes">
-				  	<ul id = "listaPendiente" style="list-style-type:none">
-						
-					</ul>
-				  </div>
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+  <header class="mdl-layout__header">
+    <div class="mdl-layout__header-row">
+      <!-- Title -->
+      <span class="mdl-layout-title">ComandasDemBois - Cocina</span>
+      <!-- Add spacer, to align navigation to the right -->
+      <div class="mdl-layout-spacer"></div>
+      <!-- Navigation. We hide it in small screens. -->
+      <nav class="mdl-navigation mdl-layout--large-screen-only">
+        <a class="mdl-navigation__link" href="">Inicio</a>
+        <a class="mdl-navigation__link" href="">Acerca de</a>
+      </nav>
+    </div>
+  </header>
+  <div class="mdl-layout__drawer">
+    <span class="mdl-layout-title">Menú</span>
+    <nav class="mdl-navigation">
+      <a class="mdl-navigation__link" href="">Inicio</a>
+      <a class="mdl-navigation__link" href="">Acerca de</a>
+    </nav>
+  </div>
+  <div class="page-content">
+	<div class="container" style="margin-top:50px">
+	<div class="page-header">
+		<h1>Oído cocina!</h1>
+	</div>
+	<div class="row">
+		<div class="col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">Preparar</div>
+					<div class="panel-body">
+				  		<ul id = "preparar" class="demo-list-item mdl-list">
+						</ul>
+				  	</div>
 				</div>
 			</div>
-			<div class="col-md-6">
-				<div class="panel panel-default">
-				  <div class="panel-heading">Platos listos</div>
-				  <div class="panel-body">
-				  	<ul id = "platosListos" style="list-style-type:none">
-				  	
-				  	</ul>
-				  </div>
+		<div class="col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-heading">Terminados</div>
+					<div class="panel-body">
+				  		<ul id = "terminados" class="demo-list-item mdl-list">
+				  		</ul>
+				  	</div>
 				</div>
 			</div>
 		</div>
 	</div>
+</div>
 </body>
 <footer>
+<br><div id="reloj" align="center"><a id="time"></a></div>
 <div class="row">
 	<div class="col-md-12 text-center">
 		<div id="estadoConexion"></div>
 	</div>
 </div>
 </footer>
-
+<br><br><br>
 <script>
 var url = "ws://" + window.location.host;
 url = url + "/Comandas/ServidorWS";
@@ -57,7 +75,7 @@ url = url + "/Comandas/ServidorWS";
 var ws = new  WebSocket(url);
 
 ws.onopen = function () {
-	estadoConexion.innerHTML = "Conectado";
+	estadoConexion.innerHTML = "conectado";
 }
 
 ws.onmessage = function(mensaje){
@@ -67,22 +85,23 @@ ws.onmessage = function(mensaje){
 		var platos = mensaje.platos;
 		var idMesa = mensaje.idMesa;
 		for (var i=0; i<platos.length; i++) {
-			var ul = document.getElementById("listaPendiente");
+			var ul = document.getElementById("preparar");
 			var li = document.createElement("li");
-			li.id = "plato-"+platos[i].idPlato;
-			li.innerHTML = "<div class='col-md-10'>"+platos[i].nombre+"</div><div class='col-md-2'><button data-plato = '"+platos[i].idPlato+"' id = 'btnFinalizar-"+platos[i].idPlato+"' style = 'margin-bottom:10px' type='button' class='btn btn-success btn-xs'>Listo</button></div>";
+			li.id = "plato-"+ platos[i].idPlato;
+			li.setAttribute("class", "mdl-list__item");
+			li.innerHTML = "<div class='col-md-10'>"+platos[i].nombre+"</div><div class='col-md-2'><button data-plato = '"+platos[i].idPlato+"' id ='btnFinalizar-"+platos[i].idPlato+"' style = 'margin-bottom:10px' type='button' class='mdl-button mdl-js-button mdl-button--icon mdl-button--colored'><i class='material-icons'>fastfood</i></button></div>";
 			ul.appendChild(li);
 			document.getElementById("btnFinalizar-"+platos[i].idPlato).addEventListener("click", function(){
-				finalizarPlato(this.dataset.plato,idMesa);
+				terminarPlato(this.dataset.plato,idMesa);
 			});
 		}
 	}
 }
 
-function finalizarPlato(idPlato,idMesa){
-	var li = document.getElementById("plato-"+idPlato);
-	var ul = document.getElementById("listaPendiente");
-	var new_ul = document.getElementById("platosListos");
+function terminarPlato(idPlato,idMesa){
+	var li = document.getElementById("plato-" + idPlato);
+	var ul = document.getElementById("preparar");
+	var new_ul = document.getElementById("terminados");
 	ul.removeChild(li);
 	new_ul.appendChild(li);
 	var obj = {
@@ -92,5 +111,28 @@ function finalizarPlato(idPlato,idMesa){
 	} 
 	ws.send(JSON.stringify(obj)); 
 }
+
+//reloj
+function checkTime(i) {
+	  if (i < 10) {
+	    i = "0" + i;
+	  }
+	  return i;
+	}
+
+function startTime() {
+	  var today = new Date();
+	  var h = today.getHours();
+	  var m = today.getMinutes();
+	  var s = today.getSeconds();
+	  // add a zero in front of numbers<10
+	  m = checkTime(m);
+	  s = checkTime(s);
+	  document.getElementById('time').innerHTML = h + ":" + m + ":" + s;
+	  t = setTimeout(function() {
+	    startTime()
+	  }, 500);
+}
+startTime();
 </script>
 </html>
