@@ -2,34 +2,91 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>cliente cocina</title>
+<title>Cliente de Cocina</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 </head>
 <body>
-	<div id="estadoConexion"></div>
-	<div id="platosPendientes"></div>
-	<div id="platosListos"></div>
+<div class="container" style="margin-top:50px">
+
+
+
+		<div class="page-header">
+			
+  			<h1>Tenemos que preparar ...</h1>
+		</div>
+
+		<div class="row">
+			<div class="col-md-6">
+				<div class="panel panel-default">
+				  <div class="panel-heading">Platos pendientes</div>
+				  <div class="panel-body" id="platosPendientes">
+				  	<ul id = "listaPendiente" style="list-style-type:none">
+						
+					</ul>
+				  </div>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="panel panel-default">
+				  <div class="panel-heading">Platos listos</div>
+				  <div class="panel-body">
+				  	<ul id = "platosListos" style="list-style-type:none">
+				  	
+				  	</ul>
+				  </div>
+				</div>
+			</div>
+		</div>
+	</div>
 </body>
+<footer>
+<div class="row">
+	<div class="col-md-12 text-center">
+		<div id="estadoConexion"></div>
+	</div>
+</div>
+</footer>
+
 <script>
 var url = "ws://" + window.location.host;
-if(window.location.port.length>0)
-    url=url + ":" + window.location.port;
-url=url + "/Comandas/ServidorWS";
-var ws = new WebSocket(url);
+url = url + "/Comandas/ServidorWSComandas";
 
-ws.onopen = function() {
-	estadoConexion.innerHTML="Conectado";
+var ws = new  WebSocket(url); //Con esto se ejecuta el on open
+ws.onopen = function () {
+	estadoConexion.innerHTML = "Conectado";
+}
+ws.onmessage = function(mensaje){
+	console.log(mensaje.data);
+	var mensaje = JSON.parse(mensaje.data);
+	if(mensaje.type == "solicitudDePlatos"){
+		var platos = mensaje.platos;
+		var idMesa = mensaje.idMesa;
+		for (var i=0; i<platos.length; i++) {
+			var ul = document.getElementById("listaPendiente");
+			var li = document.createElement("li");
+			li.id = "plato-"+platos[i].idPlato;
+			li.innerHTML = "<div class='col-md-10'>"+platos[i].nombre+"</div><div class='col-md-2'><button data-plato = '"+platos[i].idPlato+"' id = 'btnFinalizar-"+platos[i].idPlato+"' style = 'margin-bottom:10px' type='button' class='btn btn-success btn-xs'>Listo</button></div>";
+			ul.appendChild(li);
+			document.getElementById("btnFinalizar-"+platos[i].idPlato).addEventListener("click", function(){
+				finalizarPlato(this.dataset.plato,idMesa);
+			});
+		}
+	}
 }
 
-ws.onmessage = function(mensaje) {
-	var mensaje=JSON.parse(mensaje.data);
-    if(mensaje.type=="solicitudDePlatos") {
-    	var platos=mensaje.platos;
-    	//imprimir platos como el enunciado, botones y demás
-    }
-}
-
-ws.onerror = function() {
-    alert("Error");
+function finalizarPlato(idPlato,idMesa){
+	var li = document.getElementById("plato-"+idPlato);
+	var ul = document.getElementById("listaPendiente");
+	var new_ul = document.getElementById("platosListos");
+	ul.removeChild(li);
+	new_ul.appendChild(li);
+	var obj = {
+			"plato":idPlato,
+			"idMesa":idMesa,
+			"type": "PlatoFinalizado"
+	} 
+	ws.send(JSON.stringify(obj)); 
+	
 }
 </script>
 </html>
