@@ -5,7 +5,5 @@ software design lab project
 some screenshots running the web app    
   
 >![waiter_client1](screenshots/client1.png)  
-  
 ![waiter_client2](screenshots/client2.png)  
-  
 ![kitchen_client](screenshots/client3.png)
