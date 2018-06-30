@@ -6,11 +6,10 @@
 	String p=request.getParameter("p");
 	JSONObject jso=new JSONObject(p);
 	int idMesa=jso.getInt("_id");
-	JSONArray platos = jso.getJSONArray("platos");
 	
 	JSONObject respuesta=new JSONObject();
 	try {
-		Manager.get().recibirComanda(idMesa, platos);
+		//Manager.get().platoFinalizado(idPlato, idMesa);
 		respuesta.put("resultado", "OK");
 	}
 	catch (Exception e) {
