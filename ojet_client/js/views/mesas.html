@@ -1,0 +1,30 @@
+<div class="oj-hybrid-applayout-page">
+  <div class="oj-applayout-fixed-top">
+    <header role="banner" class="oj-hybrid-applayout-header" data-bind="ojModule: headerConfig">
+    </header>
+  </div>
+  <div class="oj-applayout-content">
+    <div role="main" class="oj-hybrid-applayout-content">
+      <div class="oj-hybrid-padding">
+        <div>
+          <oj-list-view id="listviewMesas" data="{{mesas_estados}}" item.renderer="[[oj.KnockoutTemplateUtils.getRenderer('rendererMesas', true)]]" selection-mode="single"></oj-list-view>
+          <script type="text/html" id="rendererMesas">
+            <li>
+            <center>
+            <oj-button class="oj-lg-12 oj-md-12 oj-sm-12" data-bind="{style : {'background-color' : (estado=='Libre' ? '#009688' : '#FF0266')}, attr : {id : id}}" on-click="[[$parent.seleccionarMesa]]">
+            <span data-bind="{style: {'color' : (estado=='Libre' ? 'white' : 'white')}, text: 'Mesa ' + id}"></span>
+            </oj-button>
+            <oj-button class="oj-focus-highlight" data-bind="{attr : {id : id}}" on-click="[[$parent.abrirMesa]]">
+            <span data-bind="{text: 'Abrir'}"></span>
+            </oj-button>
+            <oj-button class="oj-focus-highlight" data-bind="{attr : {id : id}}" on-click="[[$parent.cerrarMesa]]">
+            <span data-bind="{text: 'Cerrar'}"></span>
+            </oj-button>
+            </center>
+            </li>
+          </script>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

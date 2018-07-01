@@ -1,0 +1,41 @@
+<div class="oj-hybrid-applayout-page">
+  <div class="oj-applayout-fixed-top">
+    <header role="banner" class="oj-hybrid-applayout-header" data-bind="ojModule: headerConfig">
+    </header>
+  </div>
+  <div class="oj-applayout-content">
+    <div role="main" class="oj-hybrid-applayout-content">
+      <div class="oj-hybrid-padding">
+        <h1 data-bind="{text : 'Mesa ' + mesaActual()}"></h1>
+        <oj-list-view id="listviewCategorias" data="{{categorias_nombre}}" item.renderer="[[oj.KnockoutTemplateUtils.getRenderer('rendererCategorias', true)]]" selection-mode="single"></oj-list-view>
+        <script type="text/html" id="rendererCategorias">
+          <oj-conveyor-belt>
+          <oj-button data-bind = "{attr : {id : idCategoria}}" on-click="[[$parent.seleccionarCategoria]]">
+          <span data-bind="{text: nombre}"></span>
+          </oj-button>
+          </oj-conveyor-belt>
+        </script>
+        <br><h1>Productos</h1>
+        <oj-list-view id="listviewPlatos" data="{{platos_nombre}}" item.renderer="[[oj.KnockoutTemplateUtils.getRenderer('rendererPlatos', true)]]" selection-mode="single"></oj-list-view>
+        <script type="text/html" id="rendererPlatos">
+          <oj-conveyor-belt>
+          <oj-button class="oj-focus-highlight" data-bind = "{attr : {id : _id}}" on-click="[[$parent.seleccionarPlato]]">
+          <span data-bind="{text: nombre + '  ' + ' - '+ precio + '€'}"></span>
+          </oj-button>
+          </oj-conveyor-belt>
+        </script>
+        <br><h1>Comanda</h1>
+        <oj-list-view id="listviewComanda" data="{{comanda_seleccionada}}" item.renderer="[[oj.KnockoutTemplateUtils.getRenderer('rendererComanda', true)]]" selection-mode="single"></oj-list-view>
+        <script type="text/html" id="rendererComanda">
+          <ul>
+          <span data-bind="{text: nombre + ' - ' + unidades}"></span><br>
+          </ul>
+        </script>
+        <br>
+        <oj-button class="oj-focus-highlight" on-click="[[confirmarComanda]]">
+        <span data-bind="{text: 'Confirmar'}"></span>
+        </oj-button>
+      </div>
+    </div>
+  </div>
+</div>
