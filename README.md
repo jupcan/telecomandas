@@ -9,4 +9,6 @@ waiter client
 ![waiter_client1](screenshots/client1.png)  
 ![waiter_client2](screenshots/client2.png)  
 kitchen client
-![kitchen_client](screenshots/client3.png)
+![kitchen_client](screenshots/client3.png)  
+mobile client (android & iOS)  
+<img src="screenshots/mobile1.jpg" width="300" height="500"> <img src="screenshots/mobile2.jpg" width="300" height="500">
